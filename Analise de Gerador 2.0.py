@@ -57,13 +57,37 @@ for symbol, data in zip(answer.keys(), answer.values()):
 
 Equations = [eq1, eq2, eq3]  # Grouping equation
 
-solved = sp.nonlinsolve(Equations, unknown_symbols)  # Solving equations
+Equations[:] = [x for x in Equations if x != True]  # Subs can replace equations with a boolean, that give an error later.
 
-# Parsing solved data:
-solved = list(solved).pop() # Transforming FiniteSet in a Tuple
+# Solving equations:
+already_solved = False  # Fail-Safe for errors
 
-for number, symbol in zip(solved, unknown_symbols):
-    answer[f'{symbol}'] = f'{number}'
+if len(unknown_symbols) >= 4:  # This will give an error if its 4 or 5 or 6.
+    print("Erro, impossivel de calcular.")
+    already_solved = True
+
+elif len(unknown_symbols) == 3 and 'R' in unknown_symbols and 'Ri' in unknown_symbols and 'I' in unknown_symbols:
+    if eq1:
+        answer[f'R'] = '[0, Infinito)'
+        answer[f'Ri'] = '[0, Infinito)'
+        answer[f'I'] = '[0, Infinito)'
+    else:
+        answer[f'E'] = f'{E} but should be {U + Ui}'
+        answer[f'U'] = f'{U} but should be {E - Ui}'
+        answer[f'Ui'] = f'{Ui} but should be {E - U}'
+        answer[f'R'] = 'Erro, tem algo de errado com os valores \"E\", \"U\" e \"Ui\"'
+        answer[f'Ri'] = 'Erro, tem algo de errado com os valores \"E\", \"U\" e \"Ui\"'
+        answer[f'I'] = 'Erro, tem algo de errado com os valores \"E\", \"U\" e \"Ui\"'
+    already_solved = True
+
+if not already_solved:
+    solved = sp.nonlinsolve(Equations, unknown_symbols)
+
+    # Parsing solved data:
+    solved = list(solved).pop()  # Transforming FiniteSet in a Tuple.
+
+    for number, symbol in zip(solved, unknown_symbols):
+        answer[f'{symbol}'] = f'{number}'
 
 # Outputting solved data:
 print('E = ' + answer['E'])
