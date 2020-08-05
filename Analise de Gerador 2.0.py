@@ -1,6 +1,6 @@
 import sympy as sp
 import tkinter as tk
-
+import time
 
 # Creating an input area:
 def input_numbers():
@@ -54,6 +54,7 @@ def creating_equations():
     return eq1, eq2, eq3
 
 
+
 def defining_equations(eq1, eq2, eq3):
     # Replacing known data in equations:
     for symbol, data in zip(answer.keys(), answer.values()):
@@ -61,57 +62,79 @@ def defining_equations(eq1, eq2, eq3):
         eq2 = eq2.subs(symbol, data)
         eq3 = eq3.subs(symbol, data)
 
-    Equations = [eq1, eq2, eq3]  # Grouping equation
+    Equations = [eq1, eq2, eq3]
 
     Equations[:] = [x for x in Equations if x != True]  # Subs can replace equations with a boolean, that give an
     # error later.
-    print(Equations)
     return Equations
+
+def check_linearity():
+    global nonlinear
+    if 'Ri' in unknown_symbols and 'I' in unknown_symbols:
+        nonlinear = True
+    elif 'E' in unknown_symbols and 'U' in unknown_symbols:
+        nonlinear = True
+    elif 'R' in unknown_symbols and 'I' in unknown_symbols:
+        nonlinear = True
+
+def infinite_simulations():
+    global already_solved
+    for symbol in unknown_symbols:
+        answer[f'{symbol}'] = "[0, infinito)"
+    already_solved = True
+
 
 
 def solve_equations(Equations):
     # Solving equations:
+    success_solved = False  # Fail-safe for less than 2 var given.
+    global answer, nonlinear, already_solved
+    nonlinear = False
     already_solved = False  # Fail-Safe for errors
-    global answer
 
-    if len(unknown_symbols) >= 4:  # This will give an error if its 4 or 5 or 6.
+    if len(unknown_symbols) == 6:
+        pass
+
+    elif len(unknown_symbols) >= 4:  # This will give an error if its 4 or 5 or 6.
         print("Erro, impossivel de calcular.")
         already_solved = True
 
     elif len(unknown_symbols) == 3 and 'R' in unknown_symbols and 'Ri' in unknown_symbols and 'I' in unknown_symbols:
-        if eq1:
-            answer[f'R'] = '[0, Infinito)'
-            answer[f'Ri'] = '[0, Infinito)'
-            answer[f'I'] = '[0, Infinito)'
-        else:
-            answer[f'E'] = f'{E1} mas deveria ser {U1 + Ui1} = {U1} - {Ui1}'
-            answer[f'U'] = f'{U1} mas deveria ser {E1 - Ui1} = {E1} - {Ui1}'
-            answer[f'Ui'] = f'{Ui1} mas deveria ser {E1 - U1} = {E1} - {U1}'
-            answer[f'R'] = 'Erro, tem algo de errado com os valores \"E\", \"U\" e \"Ui\"'
-            answer[f'Ri'] = 'Erro, tem algo de errado com os valores \"E\", \"U\" e \"Ui\"'
-            answer[f'I'] = 'Erro, tem algo de errado com os valores \"E\", \"U\" e \"Ui\"'
-        already_solved = True
+        infinite_simulations()
+    elif len(unknown_symbols) == 3 and 'E' in unknown_symbols and 'U' in unknown_symbols and 'R' in unknown_symbols:
+        infinite_simulations()
 
-    if not already_solved:
+    elif not already_solved and len(unknown_symbols) > 2:
         solved = sp.nonlinsolve(Equations, unknown_symbols)
-        print(solved)
+        success_solved = True
 
+    elif not already_solved and len(unknown_symbols) <= 2 and len(unknown_symbols) != 0:
+        check_linearity()
+        if nonlinear:
+            solved = sp.nonlinsolve(Equations, unknown_symbols)
+        else:
+            solved = sp.linsolve(Equations, unknown_symbols)
+        success_solved = True
+
+    if success_solved:
         # Parsing solved data:
         solved = list(solved).pop()  # Transforming FiniteSet in a Tuple.
 
         for number, symbol in zip(solved, unknown_symbols):
             answer[f'{symbol}'] = f'{number}'
-    print(answer)
 
 
 # Outputting solved data:
 def output_print():
-    answer_label1['text'] = "E = " + str(answer['E'])
-    answer_label2['text'] = "U = " + str(answer['U'])
-    answer_label3['text'] = "Ui = " + str(answer['Ui'])
-    answer_label4['text'] = "R = " + str(answer['R'])
-    answer_label5['text'] = "Ri = " + str(answer['Ri'])
-    answer_label6['text'] = "I = " + str(answer['I'])
+    try:
+        answer_label1['text'] = "E = " + str(answer['E'])
+        answer_label2['text'] = "U = " + str(answer['U'])
+        answer_label3['text'] = "Ui = " + str(answer['Ui'])
+        answer_label4['text'] = "R = " + str(answer['R'])
+        answer_label5['text'] = "Ri = " + str(answer['Ri'])
+        answer_label6['text'] = "I = " + str(answer['I'])
+    except KeyError:
+        pass
 
 
 def initiate():
@@ -122,6 +145,7 @@ def initiate():
     answer_label5['text'] = "==================="
     answer_label6['text'] = "==================="
     answer_label1.update()  # For some motive this updates all of them
+    time.sleep(0.3)
 
     input_numbers()
     check_inputs()
@@ -137,6 +161,8 @@ if __name__ == "__main__":
     root.title("Análise de Gerador")
     root.iconbitmap("battery.ico")
     root.geometry('500x200')
+
+    root.minsize(500, 200)  # Minimum size for window
 
     frame = tk.Frame(root, bg="gray")
     frame.pack(fill="both", expand=True)
@@ -178,11 +204,11 @@ if __name__ == "__main__":
     calculate_button.place(relx=SLWid + VEWid, rely=0, relwidth=0.15, relheight=1)
 
     # Label to answer:
-    answer_label1 = tk.Label(frame, font=("Lucida Grande", 13), borderwidth=2, relief="sunken")
+    answer_label1 = tk.Label(frame, font=("Lucida Grande", 12), borderwidth=2, relief="sunken")
     answer_label1.place(relx=SLWid + VEWid + 0.15, rely=0, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
-    answer_label2 = tk.Label(frame, font=("Lucida Grande", 13), borderwidth=2, relief="sunken")
+    answer_label2 = tk.Label(frame, font=("Lucida Grande", 12), borderwidth=2, relief="sunken")
     answer_label2.place(relx=SLWid + VEWid + 0.15, rely=SLHei, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
-    answer_label3 = tk.Label(frame, font=("Lucida Grande", 13), borderwidth=2, relief="sunken")
+    answer_label3 = tk.Label(frame, font=("Lucida Grande", 12), borderwidth=2, relief="sunken")
     answer_label3.place(relx=SLWid + VEWid + 0.15, rely=SLHei * 2, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
     answer_label4 = tk.Label(frame, font=("Lucida Grande", 13), borderwidth=2, relief="sunken")
     answer_label4.place(relx=SLWid + VEWid + 0.15, rely=SLHei * 3, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
