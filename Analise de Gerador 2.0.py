@@ -104,34 +104,34 @@ def solve_equations(Equations):
     nonlinear = False
     already_solved = False  # Fail-Safe for errors
 
-    if len(unknown_symbols) == 6:
-        messagebox.showwarning('Sério?', 'Nenhuma informação foi providenciada.')
-        answer_label1['text'] = "E = U + Ui"
-        answer_label2['text'] = "U = I × R"
-        answer_label3['text'] = "Ui = I × Ri"
-        answer_label4['text'] = "R = U ÷ I"
-        answer_label5['text'] = "Ri = Ui ÷ I"
-        answer_label6['text'] = "I = U ÷ R ou Ui ÷ Ri"
-        already_solved = True
-
-    elif len(unknown_symbols) >= 4:  # This will give an error if its 4 or 5 or 6.
-        messagebox.showerror('Erro', 'Não foi possível realizar o cálculo devido a falta de informações.')
-        already_solved = True
+    if len(unknown_symbols) >= 4:
+        if len(unknown_symbols) == 6:
+            messagebox.showwarning('Sério?', 'Nenhuma informação foi providenciada.')
+            answer_label1['text'] = "E = U + Ui"
+            answer_label2['text'] = "U = I × R"
+            answer_label3['text'] = "Ui = I × Ri"
+            answer_label4['text'] = "R = U ÷ I"
+            answer_label5['text'] = "Ri = Ui ÷ I"
+            answer_label6['text'] = "I = U ÷ R ou Ui ÷ Ri"
+            already_solved = True
+        else:
+            messagebox.showerror('Erro', 'Não foi possível realizar o cálculo devido a falta de informações.')
+            already_solved = True
 
     elif len(unknown_symbols) == 3:  # Sending the checks to a function
         infinite_or_not()
 
-    if not already_solved and len(unknown_symbols) > 2:
-        solved = sp.nonlinsolve(Equations, unknown_symbols)
-        success_solved = True
-
-    elif not already_solved and len(unknown_symbols) <= 2 and len(unknown_symbols) != 0:
-        check_linearity()
-        if nonlinear:
+    if not already_solved:
+        if len(unknown_symbols) > 2:
             solved = sp.nonlinsolve(Equations, unknown_symbols)
-        else:
-            solved = sp.linsolve(Equations, unknown_symbols)
-        success_solved = True
+            success_solved = True
+        elif len(unknown_symbols) <= 2 and len(unknown_symbols) != 0:
+            check_linearity()
+            if nonlinear:
+                solved = sp.nonlinsolve(Equations, unknown_symbols)
+            else:
+                solved = sp.linsolve(Equations, unknown_symbols)
+            success_solved = True
 
     if success_solved:
         # Parsing solved data:
