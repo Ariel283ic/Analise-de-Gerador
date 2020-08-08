@@ -1,6 +1,8 @@
 import sympy as sp
 import tkinter as tk
+from tkinter import messagebox
 import time
+
 
 # Creating an input area:
 def input_numbers():
@@ -54,7 +56,6 @@ def creating_equations():
     return eq1, eq2, eq3
 
 
-
 def defining_equations(eq1, eq2, eq3):
     # Replacing known data in equations:
     for symbol, data in zip(answer.keys(), answer.values()):
@@ -68,6 +69,7 @@ def defining_equations(eq1, eq2, eq3):
     # error later.
     return Equations
 
+
 def check_linearity():
     global nonlinear
     if 'Ri' in unknown_symbols and 'I' in unknown_symbols:
@@ -77,11 +79,13 @@ def check_linearity():
     elif 'R' in unknown_symbols and 'I' in unknown_symbols:
         nonlinear = True
 
+
 def infinite_simulations():
     global already_solved
     for symbol in unknown_symbols:
         answer[f'{symbol}'] = "[0, infinito)"
     already_solved = True
+
 
 def infinite_or_not():
     if 'E' in unknown_symbols:
@@ -93,8 +97,6 @@ def infinite_or_not():
         infinite_simulations()
 
 
-
-
 def solve_equations(Equations):
     # Solving equations:
     success_solved = False  # Fail-safe for less than 2 var given.
@@ -103,16 +105,23 @@ def solve_equations(Equations):
     already_solved = False  # Fail-Safe for errors
 
     if len(unknown_symbols) == 6:
-        pass
+        messagebox.showwarning('Sério?', 'Nenhuma informação foi providenciada.')
+        answer_label1['text'] = "E = U + Ui"
+        answer_label2['text'] = "U = I × R"
+        answer_label3['text'] = "Ui = I × Ri"
+        answer_label4['text'] = "R = U ÷ I"
+        answer_label5['text'] = "Ri = Ui ÷ I"
+        answer_label6['text'] = "I = U ÷ R ou Ui ÷ Ri"
+        already_solved = True
 
     elif len(unknown_symbols) >= 4:  # This will give an error if its 4 or 5 or 6.
-        print("Erro, impossivel de calcular.")
+        messagebox.showerror('Erro', 'Não foi possível realizar o cálculo devido a falta de informações.')
         already_solved = True
 
     elif len(unknown_symbols) == 3:  # Sending the checks to a function
         infinite_or_not()
 
-    elif not already_solved and len(unknown_symbols) > 2:
+    if not already_solved and len(unknown_symbols) > 2:
         solved = sp.nonlinsolve(Equations, unknown_symbols)
         success_solved = True
 
@@ -141,6 +150,7 @@ def output_print():
         answer_label4['text'] = "R = " + str(answer['R'])
         answer_label5['text'] = "Ri = " + str(answer['Ri'])
         answer_label6['text'] = "I = " + str(answer['I'])
+
     except KeyError:
         pass
 
@@ -166,6 +176,7 @@ def initiate():
 if __name__ == "__main__":
     # Creating Gui:
     root = tk.Tk()  # Main window
+    root.eval('tk::PlaceWindow %s center' % root.winfo_toplevel())  # New trick to open window in front.
     root.title("Análise de Gerador")
     root.iconbitmap("battery.ico")
     root.geometry('500x200')
