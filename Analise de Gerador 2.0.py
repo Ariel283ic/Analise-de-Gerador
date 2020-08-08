@@ -144,13 +144,12 @@ def solve_equations(Equations):
 # Outputting solved data:
 def output_print():
     try:
-        answer_label1['text'] = "E = " + str(answer['E'])
-        answer_label2['text'] = "U = " + str(answer['U'])
-        answer_label3['text'] = "Ui = " + str(answer['Ui'])
-        answer_label4['text'] = "R = " + str(answer['R'])
-        answer_label5['text'] = "Ri = " + str(answer['Ri'])
-        answer_label6['text'] = "I = " + str(answer['I'])
-
+        answer_label1['text'] = "E = " + str(answer['E']) + ' Volts'
+        answer_label2['text'] = "U = " + str(answer['U']) + ' Volts'
+        answer_label3['text'] = "Ui = " + str(answer['Ui']) + ' Volts'
+        answer_label4['text'] = "R = " + str(answer['R']) + ' Ohms'
+        answer_label5['text'] = "Ri = " + str(answer['Ri']) + ' Ohms'
+        answer_label6['text'] = "I = " + str(answer['I']) + ' Amper'
     except KeyError:
         pass
 
