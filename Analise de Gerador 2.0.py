@@ -65,10 +65,11 @@ def defining_equations(eq1, eq2, eq3):
 
     Equations = [eq1, eq2, eq3]
 
-    Equations[:] = [x for x in Equations if x != True]  # Subs can replace equations with a boolean, that give an
-    # error later.
     if False in Equations:
         return Equations, something_is_wrong(Equations)
+
+    Equations[:] = [x for x in Equations if x != True]  # Subs can replace equations with a boolean, that give an
+    # error later.
     return Equations, False
 
 
@@ -110,25 +111,40 @@ def something_is_wrong(Equations):
 
     if error_equa[0]:
         different_output = True
-        messagebox.showerror('Erro', f"E, U e Ui não batem, {answer['E']} = {answer['U']} + {answer['Ui']}")
-        answer_label1['text'] = f"{answer['E']} = {answer['U']} + {answer['Ui']}"
-        answer_label2['text'] = f"{answer['U']} = {answer['E']} - {answer['Ui']}"
-        answer_label3['text'] = f"{answer['Ui']} = {answer['E']} - {answer['U']}"
-        already_solved = True
+        try:
+            messagebox.showerror('Erro', f"E, U e Ui não batem, {answer['E']} = {answer['U']} + {answer['Ui']}")
+            answer_label1['text'] = f"{answer['E']} = {answer['U']} + {answer['Ui']}"
+            answer_label2['text'] = f"{answer['U']} = {answer['E']} - {answer['Ui']}"
+            answer_label3['text'] = f"{answer['Ui']} = {answer['E']} - {answer['U']}"
+            answer_label1['bg'] = answer_label2['bg'] = answer_label3['bg'] = 'red'
+        except:
+            messagebox.showerror('Erro', 'E, U e Ui não batem')
+        else:
+            already_solved = True
     if error_equa[1]:
         different_output = True
-        messagebox.showerror('Erro', f"Ui, Ri e I não batem, {answer['Ui']} = {answer['Ri']} × {answer['I']}")
-        answer_label3['text'] = f"{answer['Ui']} = {answer['Ri']} × {answer['I']}"
-        answer_label5['text'] = f"{answer['Ri']} = {answer['Ui']} ÷ {answer['I']}"
-        answer_label6['text'] = f"{answer['I']} = {answer['Ui']} ÷ {answer['Ri']}"
-        already_solved = True
+        try:
+            messagebox.showerror('Erro', f"Ui, Ri e I não batem, {answer['Ui']} = {answer['Ri']} × {answer['I']}")
+            answer_label3['text'] = f"{answer['Ui']} = {answer['Ri']} × {answer['I']}"
+            answer_label5['text'] = f"{answer['Ri']} = {answer['Ui']} ÷ {answer['I']}"
+            answer_label6['text'] = f"{answer['I']} = {answer['Ui']} ÷ {answer['Ri']}"
+            answer_label3['bg'] = answer_label5['bg'] = answer_label6['bg'] = 'red'
+        except:
+            messagebox.showerror('Erro', 'Ui, Ri e I não batem')
+        else:
+            already_solved = True
     if error_equa[2]:
         different_output = True
-        messagebox.showerror('Erro', f"U, R e I não batem, {answer['U']} = {answer['R']} × {answer['I']}")
-        answer_label2['text'] = f"{answer['U']} = {answer['R']} × {answer['I']}"
-        answer_label4['text'] = f"{answer['R']} = {answer['U']} ÷ {answer['I']}"
-        answer_label6['text'] = f"{answer['I']} = {answer['U']} ÷ {answer['R']}"
-        already_solved = True
+        try:
+            messagebox.showerror('Erro', f"U, R e I não batem, {answer['U']} = {answer['R']} × {answer['I']}")
+            answer_label2['text'] = f"{answer['U']} = {answer['R']} × {answer['I']}"
+            answer_label4['text'] = f"{answer['R']} = {answer['U']} ÷ {answer['I']}"
+            answer_label6['text'] = f"{answer['I']} = {answer['U']} ÷ {answer['R']}"
+            answer_label2['bg'] = answer_label4['bg'] = answer_label6['bg'] = 'red'
+        except:
+            messagebox.showerror('Erro', 'U, R e I não batem')
+        else:
+            already_solved = True
     return different_output
 
 
@@ -136,8 +152,9 @@ def solve_equations(Equations, Check):
     # Solving equations:
     if not Check:
         success_solved = False  # Fail-safe for less than 2 var given.
-        global answer, nonlinear, already_solved, empty_symbols
+        global answer, nonlinear, already_solved, empty_symbols, different_output
         nonlinear = False
+        different_output = False
         empty_symbols = False
         already_solved = False  # Fail-Safe for errors
 
@@ -213,7 +230,7 @@ def initiate():
     eq1, eq2, eq3 = creating_equations()
     equationes, checkiones = defining_equations(eq1, eq2, eq3)
     solve_equations(equationes, checkiones)
-    time.sleep(0.3)
+    time.sleep(0.1)
     output_print()
 
 
