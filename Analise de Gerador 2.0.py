@@ -83,6 +83,16 @@ def infinite_simulations():
         answer[f'{symbol}'] = "[0, infinito)"
     already_solved = True
 
+def infinite_or_not():
+    if 'E' in unknown_symbols:
+        if 'U' in unknown_symbols and 'R' in unknown_symbols:
+            infinite_simulations()
+        elif 'Ui' in unknown_symbols and 'Ri' in unknown_symbols:
+            infinite_simulations()
+    elif 'R' in unknown_symbols and 'Ri' in unknown_symbols and 'I' in unknown_symbols:
+        infinite_simulations()
+
+
 
 
 def solve_equations(Equations):
@@ -99,10 +109,8 @@ def solve_equations(Equations):
         print("Erro, impossivel de calcular.")
         already_solved = True
 
-    elif len(unknown_symbols) == 3 and 'R' in unknown_symbols and 'Ri' in unknown_symbols and 'I' in unknown_symbols:
-        infinite_simulations()
-    elif len(unknown_symbols) == 3 and 'E' in unknown_symbols and 'U' in unknown_symbols and 'R' in unknown_symbols:
-        infinite_simulations()
+    elif len(unknown_symbols) == 3:  # Sending the checks to a function
+        infinite_or_not()
 
     elif not already_solved and len(unknown_symbols) > 2:
         solved = sp.nonlinsolve(Equations, unknown_symbols)
@@ -145,13 +153,13 @@ def initiate():
     answer_label5['text'] = "==================="
     answer_label6['text'] = "==================="
     answer_label1.update()  # For some motive this updates all of them
-    time.sleep(0.3)
 
     input_numbers()
     check_inputs()
     separate_data()
     eq1, eq2, eq3 = creating_equations()
     solve_equations(defining_equations(eq1, eq2, eq3))
+    time.sleep(0.3)
     output_print()
 
 
