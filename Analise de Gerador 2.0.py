@@ -15,7 +15,8 @@ def input_numbers():
 
     return [E1, U1, Ui1, R1, Ri1, I1]
 
-# Organizing inputs given:
+
+# Parsing all inputs:
 def parse_data(values):
     global answer, unknown_symbols
     answer = {}  # Creating a dict to organize final data.
@@ -28,57 +29,66 @@ def parse_data(values):
         else:
             unknown_symbols.append(symbol)
 
+
 # Setting Equations:
 def creating_equations():
     E, U, Ui, R, Ri, I = sp.symbols('E U Ui R Ri I')  # Setting Equation Symbols
     eq1 = sp.Eq(U + Ui - E, 0)
     eq2 = sp.Eq(Ri * I - Ui, 0)
     eq3 = sp.Eq(R * I - U, 0)
-    return eq1, eq2, eq3
 
-
-def defining_equations(eq1, eq2, eq3):
     # Replacing known data in equations:
     for symbol, data in answer.items():
         eq1 = eq1.subs(symbol, data)
         eq2 = eq2.subs(symbol, data)
         eq3 = eq3.subs(symbol, data)
 
-    Equations = [eq1, eq2, eq3]
+    equations = [eq1, eq2, eq3]
 
-    if False in Equations:
-        return Equations, something_is_wrong(Equations)
+    if False in equations:
+        return equations, something_is_wrong(equations)
 
-    Equations[:] = [x for x in Equations if x != True]  # Subs can replace equations with a boolean, that give an
+    equations[:] = [x for x in equations if x != True]  # Subs can replace equations with a boolean, that give an
     # error later.
-    return Equations, False
+    return equations, False
 
 
-def check_linearity():
-    global nonlinear
-    if 'Ri' in unknown_symbols and 'I' in unknown_symbols:
-        nonlinear = True
-    elif 'E' in unknown_symbols and 'U' in unknown_symbols:
-        nonlinear = True
-    elif 'R' in unknown_symbols and 'I' in unknown_symbols:
-        nonlinear = True
+# Merging all checks:
+def checks():
+    length = len(unknown_symbols)
 
+    global already_solved, empty_symbols, nonlinear, infinite
 
-def infinite_simulations():
-    global already_solved
-    for symbol in unknown_symbols:
-        answer[f'{symbol}'] = "[0, infinito)"
-    already_solved = True
+    if length == 6:  # Empty data check.
+        messagebox.showwarning('Sério?', 'Nenhuma informação foi providenciada.')
+        empty_symbols = True
+        already_solved = True
 
+    elif length >= 4:  # Not enough data check.
+        if len(unknown_symbols) >= 4:
+            messagebox.showerror('Erro', 'Não foi possível realizar o cálculo devido a falta de informações.')
+            already_solved = True
 
-def infinite_or_not():
-    if 'E' in unknown_symbols:
-        if 'U' in unknown_symbols and 'R' in unknown_symbols:
-            infinite_simulations()
-        elif 'Ui' in unknown_symbols and 'Ri' in unknown_symbols:
-            infinite_simulations()
-    elif 'R' in unknown_symbols and 'Ri' in unknown_symbols and 'I' in unknown_symbols:
-        infinite_simulations()
+    elif length == 3:  # Infinite check.
+        infinite_check = ['E' in unknown_symbols and 'U' in unknown_symbols and 'R' in unknown_symbols,
+                          'E' in unknown_symbols and 'Ui' in unknown_symbols and 'Ri' in unknown_symbols,
+                          'R' in unknown_symbols and 'Ri' in unknown_symbols and 'I' in unknown_symbols]
+
+        if any(infinite_check):
+            infinite = True
+            already_solved = True
+
+    elif length == 2:  # Non linear check.
+        check_linearity = ['Ri' in unknown_symbols and 'I' in unknown_symbols,
+                           'E' in unknown_symbols and 'U' in unknown_symbols,
+                           'R' in unknown_symbols and 'I' in unknown_symbols]
+
+        if any(check_linearity):
+            nonlinear = True
+
+    elif length == 0:  # Complete set check.
+        already_solved = True
+
 
 def something_is_wrong(Equations):
     # Finding where is wrong.
@@ -132,36 +142,22 @@ def something_is_wrong(Equations):
 def solve_equations(Equations, Check):
     # Solving equations:
     if not Check:
-        success_solved = False  # Fail-safe for less than 2 var given.
+        # Setting fail-safes:
+        success_solved = False
         global answer, nonlinear, already_solved, empty_symbols, different_output
         nonlinear = False
         different_output = False
         empty_symbols = False
-        already_solved = False  # Fail-Safe for errors
+        already_solved = False
 
-        if len(unknown_symbols) >= 4:
-            if len(unknown_symbols) == 6:
-                messagebox.showwarning('Sério?', 'Nenhuma informação foi providenciada.')
-                empty_symbols = True
-                already_solved = True
-            else:
-                messagebox.showerror('Erro', 'Não foi possível realizar o cálculo devido a falta de informações.')
-                already_solved = True
-
-        elif len(unknown_symbols) == 3:  # Sending the checks to a function
-            infinite_or_not()
+        checks()
 
         if not already_solved:
-            if len(unknown_symbols) > 2:
+            if nonlinear:
                 solved = sp.nonlinsolve(Equations, unknown_symbols)
-                success_solved = True
-            elif len(unknown_symbols) <= 2 and len(unknown_symbols) != 0:
-                check_linearity()
-                if nonlinear:
-                    solved = sp.nonlinsolve(Equations, unknown_symbols)
-                else:
-                    solved = sp.linsolve(Equations, unknown_symbols)
-                success_solved = True
+            else:
+                solved = sp.linsolve(Equations, unknown_symbols)
+            success_solved = True
 
         if success_solved:
             # Parsing solved data:
@@ -169,8 +165,10 @@ def solve_equations(Equations, Check):
 
             for number, symbol in zip(solved, unknown_symbols):
                 answer[f'{symbol}'] = f'{number}'
-    else:
-        pass
+
+        elif infinite:
+            for symbol in unknown_symbols:
+                answer[f'{symbol}'] = "[0, infinito)"
 
 
 # Outputting solved data:
@@ -191,7 +189,7 @@ def output_print():
             answer_label3['text'] = "Ui = " + str(answer['Ui']) + ' Volts'
             answer_label4['text'] = "R = " + str(answer['R']) + ' Ohms'
             answer_label5['text'] = "Ri = " + str(answer['Ri']) + ' Ohms'
-            answer_label6['text'] = "I = " + str(answer['I']) + ' Amper'
+            answer_label6['text'] = "I = " + str(answer['I']) + ' Ampere'
         except KeyError:
             messagebox.showerror('Erro', 'Provavelmente algum número errado na hora de digitar')
 
@@ -203,10 +201,11 @@ def initiate():
     answer_label4['text'] = "==================="
     answer_label5['text'] = "==================="
     answer_label6['text'] = "==================="
+    answer_label1['bg'] = answer_label2['bg'] = answer_label3['bg'] = answer_label4['bg'] = answer_label5['bg'] = answer_label6['bg'] = 'honeydew'
     answer_label1.update()  # For some motive this updates all of them
 
     parse_data(input_numbers())
-    solve_equations(*defining_equations(*creating_equations()))
+    solve_equations(*creating_equations())
     time.sleep(0.1)
     output_print()
 
