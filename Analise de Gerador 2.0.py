@@ -6,7 +6,6 @@ import time
 
 # Creating an input area:
 def input_numbers():
-    global E1, U1, Ui1, R1, Ri1, I1
     E1 = value_entry1.get()
     U1 = value_entry2.get()
     Ui1 = value_entry3.get()
@@ -14,25 +13,17 @@ def input_numbers():
     Ri1 = value_entry5.get()
     I1 = value_entry6.get()
 
+    return [E1, U1, Ui1, R1, Ri1, I1]
 
 # Organizing inputs given:
-def check_inputs():
+def check_inputs(values):
     global answer
-    answer = {}  # Creating a dict to organize final data
+    answer = {}  # Creating a dict to organize final data.
+    symbols = ['E', 'U', 'Ui', 'R', 'Ri', 'I']
 
-    if E1:
-        answer['E'] = sp.S(E1)
-    if U1:
-        answer['U'] = sp.S(U1)
-    if Ui1:
-        answer['Ui'] = sp.S(Ui1)
-    if R1:
-        answer['R'] = sp.S(R1)
-    if Ri1:
-        answer['Ri'] = sp.S(Ri1)
-    if I1:
-        answer['I'] = sp.S(I1)
-
+    for value, symbol in zip(values, symbols):  # Much easier to parse with loops.
+        if value:
+            answer[symbol] = sp.S(value)
 
 # Separating unknown symbols:
 def separate_data():
@@ -224,8 +215,7 @@ def initiate():
     answer_label6['text'] = "==================="
     answer_label1.update()  # For some motive this updates all of them
 
-    input_numbers()
-    check_inputs()
+    check_inputs(input_numbers())
     separate_data()
     solve_equations(*defining_equations(*creating_equations()))
     time.sleep(0.1)
