@@ -58,7 +58,7 @@ def creating_equations():
 
 def defining_equations(eq1, eq2, eq3):
     # Replacing known data in equations:
-    for symbol, data in zip(answer.keys(), answer.values()):
+    for symbol, data in answer.items():
         eq1 = eq1.subs(symbol, data)
         eq2 = eq2.subs(symbol, data)
         eq3 = eq3.subs(symbol, data)
@@ -227,9 +227,7 @@ def initiate():
     input_numbers()
     check_inputs()
     separate_data()
-    eq1, eq2, eq3 = creating_equations()
-    equationes, checkiones = defining_equations(eq1, eq2, eq3)
-    solve_equations(equationes, checkiones)
+    solve_equations(*defining_equations(*creating_equations()))
     time.sleep(0.1)
     output_print()
 
@@ -247,35 +245,46 @@ if __name__ == "__main__":
     frame = tk.Frame(root, bg="gray")
     frame.pack(fill="both", expand=True)
 
-    SLWid = 0.08  # It's easier to change if you set a var.
+    # GUI locational vars:
+    SLWid = 0.08
     SLHei = 1 / 6
     VEWid = 0.25
 
     # Labels to the entry
     symbol_label1 = tk.Label(frame, font=("Lucida Grande", 15), text="E", borderwidth=2, relief="groove")
     symbol_label1.place(relx=0, rely=0, relwidth=SLWid, relheight=SLHei)
+
     symbol_label2 = tk.Label(frame, font=("Lucida Grande", 15), text="U", borderwidth=2, relief="groove")
     symbol_label2.place(relx=0, rely=SLHei, relwidth=SLWid, relheight=SLHei)
+
     symbol_label3 = tk.Label(frame, font=("Lucida Grande", 15), text="Ui", borderwidth=2, relief="groove")
     symbol_label3.place(relx=0, rely=SLHei * 2, relwidth=SLWid, relheight=SLHei)
+
     symbol_label4 = tk.Label(frame, font=("Lucida Grande", 15), text="R", borderwidth=2, relief="groove")
     symbol_label4.place(relx=0, rely=SLHei * 3, relwidth=SLWid, relheight=SLHei)
+
     symbol_label5 = tk.Label(frame, font=("Lucida Grande", 15), text="Ri", borderwidth=2, relief="groove")
     symbol_label5.place(relx=0, rely=SLHei * 4, relwidth=SLWid, relheight=SLHei)
+
     symbol_label6 = tk.Label(frame, font=("Lucida Grande", 15), text="I", borderwidth=2, relief="groove")
     symbol_label6.place(relx=0, rely=SLHei * 5, relwidth=SLWid, relheight=SLHei)
 
     # Entry to the values
     value_entry1 = tk.Entry(frame, bg="dark gray")
     value_entry1.place(relx=SLWid, rely=0, relwidth=VEWid, relheight=SLHei)
+
     value_entry2 = tk.Entry(frame, bg="dark gray")
     value_entry2.place(relx=SLWid, rely=SLHei, relwidth=VEWid, relheight=SLHei)
+
     value_entry3 = tk.Entry(frame, bg="dark gray")
     value_entry3.place(relx=SLWid, rely=SLHei * 2, relwidth=VEWid, relheight=SLHei)
+
     value_entry4 = tk.Entry(frame, bg="dark gray")
     value_entry4.place(relx=SLWid, rely=SLHei * 3, relwidth=VEWid, relheight=SLHei)
+
     value_entry5 = tk.Entry(frame, bg="dark gray")
     value_entry5.place(relx=SLWid, rely=SLHei * 4, relwidth=VEWid, relheight=SLHei)
+
     value_entry6 = tk.Entry(frame, bg="dark gray")
     value_entry6.place(relx=SLWid, rely=SLHei * 5, relwidth=VEWid, relheight=SLHei)
 
@@ -286,14 +295,19 @@ if __name__ == "__main__":
     # Label to answer:
     answer_label1 = tk.Label(frame, font=("Lucida Grande", 12), borderwidth=2, relief="sunken")
     answer_label1.place(relx=SLWid + VEWid + 0.15, rely=0, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
+
     answer_label2 = tk.Label(frame, font=("Lucida Grande", 12), borderwidth=2, relief="sunken")
     answer_label2.place(relx=SLWid + VEWid + 0.15, rely=SLHei, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
+
     answer_label3 = tk.Label(frame, font=("Lucida Grande", 12), borderwidth=2, relief="sunken")
     answer_label3.place(relx=SLWid + VEWid + 0.15, rely=SLHei * 2, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
+
     answer_label4 = tk.Label(frame, font=("Lucida Grande", 13), borderwidth=2, relief="sunken")
     answer_label4.place(relx=SLWid + VEWid + 0.15, rely=SLHei * 3, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
+
     answer_label5 = tk.Label(frame, font=("Lucida Grande", 13), borderwidth=2, relief="sunken")
     answer_label5.place(relx=SLWid + VEWid + 0.15, rely=SLHei * 4, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
+
     answer_label6 = tk.Label(frame, font=("Lucida Grande", 13), borderwidth=2, relief="sunken")
     answer_label6.place(relx=SLWid + VEWid + 0.15, rely=SLHei * 5, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
 
