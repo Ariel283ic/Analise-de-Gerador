@@ -144,13 +144,8 @@ def something_is_wrong(equations):
 
 def solve_equations(Equations):
     # Solving equations:
-    success_solved = False
     global answer, nonlinear, already_solved, empty_symbols, different_output, infinite
-    nonlinear = False
-    infinite = False
-    different_output = False
-    empty_symbols = False
-    already_solved = False
+    success_solved = nonlinear = infinite = different_output = empty_symbols = already_solved = False
 
     equations = checks(Equations)
 
