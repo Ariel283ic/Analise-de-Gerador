@@ -6,7 +6,6 @@ import time
 
 # Creating an input area:
 def input_numbers():
-    global E1, U1, Ui1, R1, Ri1, I1
     E1 = value_entry1.get()
     U1 = value_entry2.get()
     Ui1 = value_entry3.get()
@@ -14,36 +13,20 @@ def input_numbers():
     Ri1 = value_entry5.get()
     I1 = value_entry6.get()
 
-
-# Organizing inputs given:
-def check_inputs():
-    global answer
-    answer = {}  # Creating a dict to organize final data
-
-    if E1:
-        answer['E'] = sp.S(E1)
-    if U1:
-        answer['U'] = sp.S(U1)
-    if Ui1:
-        answer['Ui'] = sp.S(Ui1)
-    if R1:
-        answer['R'] = sp.S(R1)
-    if Ri1:
-        answer['Ri'] = sp.S(Ri1)
-    if I1:
-        answer['I'] = sp.S(I1)
+    return [E1, U1, Ui1, R1, Ri1, I1]
 
 
-# Separating unknown symbols:
-def separate_data():
-    symbols_used = ['E', 'U', 'Ui', 'R', 'Ri', 'I']  # All symbols for parsing
-    data_given = [E1, U1, Ui1, R1, Ri1, I1]  # All data for parsing
-
-    global unknown_symbols
+# Parsing all inputs:
+def parse_data(values):
+    global answer, unknown_symbols
+    answer = {}  # Creating a dict to organize final data.
     unknown_symbols = []  # Creating list for unknown symbols
+    symbols = ['E', 'U', 'Ui', 'R', 'Ri', 'I']
 
-    for data, symbol in zip(data_given, symbols_used):
-        if not data:
+    for value, symbol in zip(values, symbols):  # Much easier to parse with loops.
+        if value:
+            answer[symbol] = sp.S(value)
+        else:
             unknown_symbols.append(symbol)
 
 
@@ -53,63 +36,73 @@ def creating_equations():
     eq1 = sp.Eq(U + Ui - E, 0)
     eq2 = sp.Eq(Ri * I - Ui, 0)
     eq3 = sp.Eq(R * I - U, 0)
-    return eq1, eq2, eq3
 
-
-def defining_equations(eq1, eq2, eq3):
     # Replacing known data in equations:
-    for symbol, data in zip(answer.keys(), answer.values()):
+    for symbol, data in answer.items():
         eq1 = eq1.subs(symbol, data)
         eq2 = eq2.subs(symbol, data)
         eq3 = eq3.subs(symbol, data)
 
-    Equations = [eq1, eq2, eq3]
+    equations = [eq1, eq2, eq3]
 
-    if False in Equations:
-        return Equations, something_is_wrong(Equations)
-
-    Equations[:] = [x for x in Equations if x != True]  # Subs can replace equations with a boolean, that give an
-    # error later.
-    return Equations, False
+    return equations
 
 
-def check_linearity():
-    global nonlinear
-    if 'Ri' in unknown_symbols and 'I' in unknown_symbols:
-        nonlinear = True
-    elif 'E' in unknown_symbols and 'U' in unknown_symbols:
-        nonlinear = True
-    elif 'R' in unknown_symbols and 'I' in unknown_symbols:
-        nonlinear = True
+# Merging all checks:
+def checks(equations):
+    length = len(unknown_symbols)
+
+    global already_solved, empty_symbols, nonlinear, infinite
+
+    if False in equations:
+        something_is_wrong(equations)
+    else:
+        equations[:] = [x for x in equations if x != True]
+
+        if length == 6:  # Empty data check.
+            messagebox.showwarning('Sério?', 'Nenhuma informação foi providenciada.')
+            empty_symbols = True
+            already_solved = True
+
+        elif length >= 4:  # Not enough data check.
+            if len(unknown_symbols) >= 4:
+                messagebox.showerror('Erro', 'Não foi possível realizar o cálculo devido a falta de informações.')
+                already_solved = True
+
+        elif length == 3:  # Infinite check.
+            infinite_check = ['E' in unknown_symbols and 'U' in unknown_symbols and 'R' in unknown_symbols,
+                              'E' in unknown_symbols and 'Ui' in unknown_symbols and 'Ri' in unknown_symbols,
+                              'R' in unknown_symbols and 'Ri' in unknown_symbols and 'I' in unknown_symbols]
+
+            if any(infinite_check):
+                infinite = True
+                already_solved = True
+
+        elif length == 2:  # Non linear check.
+            check_linearity = ['Ri' in unknown_symbols and 'I' in unknown_symbols,
+                               'E' in unknown_symbols and 'U' in unknown_symbols,
+                               'R' in unknown_symbols and 'I' in unknown_symbols]
+
+            if any(check_linearity):
+                nonlinear = True
+
+        elif length == 0:  # Complete set check.
+            already_solved = True
+
+        return equations
 
 
-def infinite_simulations():
-    global already_solved
-    for symbol in unknown_symbols:
-        answer[f'{symbol}'] = "[0, infinito)"
-    already_solved = True
-
-
-def infinite_or_not():
-    if 'E' in unknown_symbols:
-        if 'U' in unknown_symbols and 'R' in unknown_symbols:
-            infinite_simulations()
-        elif 'Ui' in unknown_symbols and 'Ri' in unknown_symbols:
-            infinite_simulations()
-    elif 'R' in unknown_symbols and 'Ri' in unknown_symbols and 'I' in unknown_symbols:
-        infinite_simulations()
-
-def something_is_wrong(Equations):
+def something_is_wrong(equations):
     # Finding where is wrong.
     global different_output, already_solved
-    error_equa = []
-    for equation in Equations:
+    error_equation = []
+    for equation in equations:
         if equation == False:
-            error_equa.append(True)
+            error_equation.append(True)
         else:
-            error_equa.append(False)
+            error_equation.append(False)
 
-    if error_equa[0]:
+    if error_equation[0]:
         different_output = True
         try:
             messagebox.showerror('Erro', f"E, U e Ui não batem, {answer['E']} = {answer['U']} + {answer['Ui']}")
@@ -121,7 +114,8 @@ def something_is_wrong(Equations):
             messagebox.showerror('Erro', 'E, U e Ui não batem')
         else:
             already_solved = True
-    if error_equa[1]:
+
+    if error_equation[1]:
         different_output = True
         try:
             messagebox.showerror('Erro', f"Ui, Ri e I não batem, {answer['Ui']} = {answer['Ri']} × {answer['I']}")
@@ -133,7 +127,8 @@ def something_is_wrong(Equations):
             messagebox.showerror('Erro', 'Ui, Ri e I não batem')
         else:
             already_solved = True
-    if error_equa[2]:
+
+    if error_equation[2]:
         different_output = True
         try:
             messagebox.showerror('Erro', f"U, R e I não batem, {answer['U']} = {answer['R']} × {answer['I']}")
@@ -145,51 +140,32 @@ def something_is_wrong(Equations):
             messagebox.showerror('Erro', 'U, R e I não batem')
         else:
             already_solved = True
-    return different_output
 
 
-def solve_equations(Equations, Check):
+def solve_equations(Equations):
     # Solving equations:
-    if not Check:
-        success_solved = False  # Fail-safe for less than 2 var given.
-        global answer, nonlinear, already_solved, empty_symbols, different_output
-        nonlinear = False
-        different_output = False
-        empty_symbols = False
-        already_solved = False  # Fail-Safe for errors
+    global answer, nonlinear, already_solved, empty_symbols, different_output, infinite
+    success_solved = nonlinear = infinite = different_output = empty_symbols = already_solved = False
 
-        if len(unknown_symbols) >= 4:
-            if len(unknown_symbols) == 6:
-                messagebox.showwarning('Sério?', 'Nenhuma informação foi providenciada.')
-                empty_symbols = True
-                already_solved = True
-            else:
-                messagebox.showerror('Erro', 'Não foi possível realizar o cálculo devido a falta de informações.')
-                already_solved = True
+    equations = checks(Equations)
 
-        elif len(unknown_symbols) == 3:  # Sending the checks to a function
-            infinite_or_not()
+    if not already_solved:
+        if nonlinear:
+            solved = sp.nonlinsolve(equations, unknown_symbols)
+        else:
+            solved = sp.linsolve(equations, unknown_symbols)
+        success_solved = True
 
-        if not already_solved:
-            if len(unknown_symbols) > 2:
-                solved = sp.nonlinsolve(Equations, unknown_symbols)
-                success_solved = True
-            elif len(unknown_symbols) <= 2 and len(unknown_symbols) != 0:
-                check_linearity()
-                if nonlinear:
-                    solved = sp.nonlinsolve(Equations, unknown_symbols)
-                else:
-                    solved = sp.linsolve(Equations, unknown_symbols)
-                success_solved = True
+    if success_solved:
+        # Parsing solved data:
+        solved = list(solved).pop()  # Transforming FiniteSet in a Tuple.
 
-        if success_solved:
-            # Parsing solved data:
-            solved = list(solved).pop()  # Transforming FiniteSet in a Tuple.
+        for number, symbol in zip(solved, unknown_symbols):
+            answer[f'{symbol}'] = f'{number}'
 
-            for number, symbol in zip(solved, unknown_symbols):
-                answer[f'{symbol}'] = f'{number}'
-    else:
-        pass
+    elif infinite:
+        for symbol in unknown_symbols:
+                answer[f'{symbol}'] = "[0, infinito)"
 
 
 # Outputting solved data:
@@ -210,9 +186,9 @@ def output_print():
             answer_label3['text'] = "Ui = " + str(answer['Ui']) + ' Volts'
             answer_label4['text'] = "R = " + str(answer['R']) + ' Ohms'
             answer_label5['text'] = "Ri = " + str(answer['Ri']) + ' Ohms'
-            answer_label6['text'] = "I = " + str(answer['I']) + ' Amper'
+            answer_label6['text'] = "I = " + str(answer['I']) + ' Ampere'
         except KeyError:
-            messagebox.showerror('Erro', 'Provavelmente algum número errado na hora de digitar')
+            pass
 
 
 def initiate():
@@ -222,14 +198,11 @@ def initiate():
     answer_label4['text'] = "==================="
     answer_label5['text'] = "==================="
     answer_label6['text'] = "==================="
+    answer_label1['bg'] = answer_label2['bg'] = answer_label3['bg'] = answer_label4['bg'] = answer_label5['bg'] = answer_label6['bg'] = 'honeydew'
     answer_label1.update()  # For some motive this updates all of them
 
-    input_numbers()
-    check_inputs()
-    separate_data()
-    eq1, eq2, eq3 = creating_equations()
-    equationes, checkiones = defining_equations(eq1, eq2, eq3)
-    solve_equations(equationes, checkiones)
+    parse_data(input_numbers())
+    solve_equations(creating_equations())
     time.sleep(0.1)
     output_print()
 
@@ -247,35 +220,46 @@ if __name__ == "__main__":
     frame = tk.Frame(root, bg="gray")
     frame.pack(fill="both", expand=True)
 
-    SLWid = 0.08  # It's easier to change if you set a var.
+    # GUI locational vars:
+    SLWid = 0.08
     SLHei = 1 / 6
     VEWid = 0.25
 
     # Labels to the entry
     symbol_label1 = tk.Label(frame, font=("Lucida Grande", 15), text="E", borderwidth=2, relief="groove")
     symbol_label1.place(relx=0, rely=0, relwidth=SLWid, relheight=SLHei)
+
     symbol_label2 = tk.Label(frame, font=("Lucida Grande", 15), text="U", borderwidth=2, relief="groove")
     symbol_label2.place(relx=0, rely=SLHei, relwidth=SLWid, relheight=SLHei)
+
     symbol_label3 = tk.Label(frame, font=("Lucida Grande", 15), text="Ui", borderwidth=2, relief="groove")
     symbol_label3.place(relx=0, rely=SLHei * 2, relwidth=SLWid, relheight=SLHei)
+
     symbol_label4 = tk.Label(frame, font=("Lucida Grande", 15), text="R", borderwidth=2, relief="groove")
     symbol_label4.place(relx=0, rely=SLHei * 3, relwidth=SLWid, relheight=SLHei)
+
     symbol_label5 = tk.Label(frame, font=("Lucida Grande", 15), text="Ri", borderwidth=2, relief="groove")
     symbol_label5.place(relx=0, rely=SLHei * 4, relwidth=SLWid, relheight=SLHei)
+
     symbol_label6 = tk.Label(frame, font=("Lucida Grande", 15), text="I", borderwidth=2, relief="groove")
     symbol_label6.place(relx=0, rely=SLHei * 5, relwidth=SLWid, relheight=SLHei)
 
     # Entry to the values
     value_entry1 = tk.Entry(frame, bg="dark gray")
     value_entry1.place(relx=SLWid, rely=0, relwidth=VEWid, relheight=SLHei)
+
     value_entry2 = tk.Entry(frame, bg="dark gray")
     value_entry2.place(relx=SLWid, rely=SLHei, relwidth=VEWid, relheight=SLHei)
+
     value_entry3 = tk.Entry(frame, bg="dark gray")
     value_entry3.place(relx=SLWid, rely=SLHei * 2, relwidth=VEWid, relheight=SLHei)
+
     value_entry4 = tk.Entry(frame, bg="dark gray")
     value_entry4.place(relx=SLWid, rely=SLHei * 3, relwidth=VEWid, relheight=SLHei)
+
     value_entry5 = tk.Entry(frame, bg="dark gray")
     value_entry5.place(relx=SLWid, rely=SLHei * 4, relwidth=VEWid, relheight=SLHei)
+
     value_entry6 = tk.Entry(frame, bg="dark gray")
     value_entry6.place(relx=SLWid, rely=SLHei * 5, relwidth=VEWid, relheight=SLHei)
 
@@ -286,14 +270,19 @@ if __name__ == "__main__":
     # Label to answer:
     answer_label1 = tk.Label(frame, font=("Lucida Grande", 12), borderwidth=2, relief="sunken")
     answer_label1.place(relx=SLWid + VEWid + 0.15, rely=0, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
+
     answer_label2 = tk.Label(frame, font=("Lucida Grande", 12), borderwidth=2, relief="sunken")
     answer_label2.place(relx=SLWid + VEWid + 0.15, rely=SLHei, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
+
     answer_label3 = tk.Label(frame, font=("Lucida Grande", 12), borderwidth=2, relief="sunken")
     answer_label3.place(relx=SLWid + VEWid + 0.15, rely=SLHei * 2, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
+
     answer_label4 = tk.Label(frame, font=("Lucida Grande", 13), borderwidth=2, relief="sunken")
     answer_label4.place(relx=SLWid + VEWid + 0.15, rely=SLHei * 3, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
+
     answer_label5 = tk.Label(frame, font=("Lucida Grande", 13), borderwidth=2, relief="sunken")
     answer_label5.place(relx=SLWid + VEWid + 0.15, rely=SLHei * 4, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
+
     answer_label6 = tk.Label(frame, font=("Lucida Grande", 13), borderwidth=2, relief="sunken")
     answer_label6.place(relx=SLWid + VEWid + 0.15, rely=SLHei * 5, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
 
