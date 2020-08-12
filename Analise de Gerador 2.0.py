@@ -16,27 +16,17 @@ def input_numbers():
     return [E1, U1, Ui1, R1, Ri1, I1]
 
 # Organizing inputs given:
-def check_inputs(values):
-    global answer
+def parse_data(values):
+    global answer, unknown_symbols
     answer = {}  # Creating a dict to organize final data.
+    unknown_symbols = []  # Creating list for unknown symbols
     symbols = ['E', 'U', 'Ui', 'R', 'Ri', 'I']
 
     for value, symbol in zip(values, symbols):  # Much easier to parse with loops.
         if value:
             answer[symbol] = sp.S(value)
-
-# Separating unknown symbols:
-def separate_data():
-    symbols_used = ['E', 'U', 'Ui', 'R', 'Ri', 'I']  # All symbols for parsing
-    data_given = [E1, U1, Ui1, R1, Ri1, I1]  # All data for parsing
-
-    global unknown_symbols
-    unknown_symbols = []  # Creating list for unknown symbols
-
-    for data, symbol in zip(data_given, symbols_used):
-        if not data:
+        else:
             unknown_symbols.append(symbol)
-
 
 # Setting Equations:
 def creating_equations():
@@ -215,8 +205,7 @@ def initiate():
     answer_label6['text'] = "==================="
     answer_label1.update()  # For some motive this updates all of them
 
-    check_inputs(input_numbers())
-    separate_data()
+    parse_data(input_numbers())
     solve_equations(*defining_equations(*creating_equations()))
     time.sleep(0.1)
     output_print()
