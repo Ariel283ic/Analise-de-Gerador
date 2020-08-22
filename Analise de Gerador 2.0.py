@@ -26,6 +26,7 @@ class Window:
         self.VEWid = 0.25
 
         self.SetUI()
+        self.ResetLabel()
 
         self.root.mainloop()
 
@@ -97,15 +98,26 @@ class Window:
         self.answer_label6.place(relx=self.SLWid + self.VEWid + 0.15, rely=self.SLHei * 5,
                                  relwidth=1 - (self.SLWid + self.VEWid + 0.15), relheight=self.SLHei)
 
-    def input_numbers(self):
-        E1 = self.value_entry1.get()
-        U1 = self.value_entry2.get()
-        Ui1 = self.value_entry3.get()
-        R1 = self.value_entry4.get()
-        Ri1 = self.value_entry5.get()
-        I1 = self.value_entry6.get()
+    def ResetLabel(self):
+        self.answer_label1['text'] = "E = -----------------"
+        self.answer_label2['text'] = "U = -----------------"
+        self.answer_label3['text'] = "Ui = -----------------"
+        self.answer_label4['text'] = "R = -----------------"
+        self.answer_label5['text'] = "Ri = -----------------"
+        self.answer_label6['text'] = "I = -----------------"
+        self.answer_label1['bg'] = self.answer_label2['bg'] = self.answer_label3['bg'] = self.answer_label4['bg'] = \
+        self.answer_label5['bg'] = self.answer_label6['bg'] = 'honeydew'
+        self.answer_label1.update()
 
-        return [E1, U1, Ui1, R1, Ri1, I1]
+    def input_numbers(self):
+        e1 = self.value_entry1.get()
+        u1 = self.value_entry2.get()
+        ui1 = self.value_entry3.get()
+        r1 = self.value_entry4.get()
+        ri1 = self.value_entry5.get()
+        i1 = self.value_entry6.get()
+
+        return [e1, u1, ui1, r1, ri1, i1]
 
     def parse_data(self, values):
         self.answer = {}  # Creating a dict to organize final data.
@@ -266,15 +278,7 @@ class Window:
                 pass
 
     def initiate(self):
-        self.answer_label1['text'] = "E = -----------------"
-        self.answer_label2['text'] = "U = -----------------"
-        self.answer_label3['text'] = "Ui = -----------------"
-        self.answer_label4['text'] = "R = -----------------"
-        self.answer_label5['text'] = "Ri = -----------------"
-        self.answer_label6['text'] = "I = -----------------"
-        self.answer_label1['bg'] = self.answer_label2['bg'] = self.answer_label3['bg'] = self.answer_label4['bg'] = self.answer_label5['bg'] = self.answer_label6['bg'] = 'honeydew'
-        self.answer_label1.update()  # For some motive this updates all of them
-
+        self.ResetLabel()
         self.parse_data(self.input_numbers())
         self.solve_equations(self.creating_equations())
         time.sleep(0.1)
