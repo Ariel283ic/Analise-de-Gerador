@@ -106,7 +106,7 @@ class Window:
         self.answer_label5['text'] = "Ri = -----------------"
         self.answer_label6['text'] = "I = -----------------"
         self.answer_label1['bg'] = self.answer_label2['bg'] = self.answer_label3['bg'] = self.answer_label4['bg'] = \
-        self.answer_label5['bg'] = self.answer_label6['bg'] = 'honeydew'
+            self.answer_label5['bg'] = self.answer_label6['bg'] = 'honeydew'
         self.answer_label1.update()
 
     def input_numbers(self):
@@ -149,27 +149,26 @@ class Window:
         length = len(self.unknown_symbols)
 
         if False in equations:
-            self.something_is_wrong(equations)
+            self.output_print_wrong(equations)
         else:
             equations[:] = [x for x in equations if x != True]
 
             if length == 6:  # Empty data check.
                 messagebox.showwarning('Sério?', 'Nenhuma informação foi providenciada.')
-                self.empty_symbols = True
-                self.already_solved = True
+                self.output_print_empty()
 
             elif length >= 4:  # Not enough data check. STILL NEED TO DO
                 messagebox.showerror('Erro', 'Não foi possível realizar o cálculo devido a falta de informações.')
-                self.already_solved = True
+            #    self.PLACEHOLDER()
 
             elif length == 3:  # Infinite check.
-                infinite_check = ['E' in self.unknown_symbols and 'U' in self.unknown_symbols and 'R' in self.unknown_symbols,
-                                  'E' in self.unknown_symbols and 'Ui' in self.unknown_symbols and 'Ri' in self.unknown_symbols,
-                                  'R' in self.unknown_symbols and 'Ri' in self.unknown_symbols and 'I' in self.unknown_symbols]
+                infinite_check = [
+                    'E' in self.unknown_symbols and 'U' in self.unknown_symbols and 'R' in self.unknown_symbols,
+                    'E' in self.unknown_symbols and 'Ui' in self.unknown_symbols and 'Ri' in self.unknown_symbols,
+                    'R' in self.unknown_symbols and 'Ri' in self.unknown_symbols and 'I' in self.unknown_symbols]
 
                 if any(infinite_check):
-                    self.infinite = True
-                    self.already_solved = True
+                    self.output_print_infinite()
 
             elif length == 2:  # Non linear check.
                 check_linearity = ['Ri' in self.unknown_symbols and 'I' in self.unknown_symbols,
@@ -177,14 +176,15 @@ class Window:
                                    'R' in self.unknown_symbols and 'I' in self.unknown_symbols]
 
                 if any(check_linearity):
-                    self.nonlinear = True
+                    self.solve_equations_nonlinear(equations)
 
             elif length == 0:  # Complete set check.
-                self.already_solved = True
+                self.output_print_normal()
 
-            return equations
+            else:
+                self.solve_equations_linear(equations)
 
-    def something_is_wrong(self, equations):
+    def output_print_wrong(self, equations):
         # Finding where is wrong.
         error_equation = []
         for equation in equations:
@@ -194,95 +194,80 @@ class Window:
                 error_equation.append(False)
 
         if error_equation[0]:
-            self.different_output = True
             try:
-                messagebox.showerror('Erro', f"E, U e Ui não batem, {self.answer['E']} = {self.answer['U']} + {self.answer['Ui']}")
+                messagebox.showerror('Erro',
+                                     f"E, U e Ui não batem, {self.answer['E']} = {self.answer['U']} + {self.answer['Ui']}")
                 self.answer_label1['text'] = f"{self.answer['E']} = {self.answer['U']} + {self.answer['Ui']}"
                 self.answer_label2['text'] = f"{self.answer['U']} = {self.answer['E']} - {self.answer['Ui']}"
                 self.answer_label3['text'] = f"{self.answer['Ui']} = {self.answer['E']} - {self.answer['U']}"
                 self.answer_label1['bg'] = self.answer_label2['bg'] = self.answer_label3['bg'] = 'red'
             except:
                 messagebox.showerror('Erro', 'E, U e Ui não batem')
-            else:
-                self.already_solved = True
 
         if error_equation[1]:
-            self.different_output = True
             try:
-                messagebox.showerror('Erro', f"Ui, Ri e I não batem, {self.answer['Ui']} = {self.answer['Ri']} × {self.answer['I']}")
+                messagebox.showerror('Erro',
+                                     f"Ui, Ri e I não batem, {self.answer['Ui']} = {self.answer['Ri']} × {self.answer['I']}")
                 self.answer_label3['text'] = f"{self.answer['Ui']} = {self.answer['Ri']} × {self.answer['I']}"
                 self.answer_label5['text'] = f"{self.answer['Ri']} = {self.answer['Ui']} ÷ {self.answer['I']}"
                 self.answer_label6['text'] = f"{self.answer['I']} = {self.answer['Ui']} ÷ {self.answer['Ri']}"
                 self.answer_label3['bg'] = self.answer_label5['bg'] = self.answer_label6['bg'] = 'red'
             except:
                 messagebox.showerror('Erro', 'Ui, Ri e I não batem')
-            else:
-                self.already_solved = True
 
         if error_equation[2]:
-            self.different_output = True
             try:
-                messagebox.showerror('Erro', f"U, R e I não batem, {self.answer['U']} = {self.answer['R']} × {self.answer['I']}")
+                messagebox.showerror('Erro',
+                                     f"U, R e I não batem, {self.answer['U']} = {self.answer['R']} × {self.answer['I']}")
                 self.answer_label2['text'] = f"{self.answer['U']} = {self.answer['R']} × {self.answer['I']}"
                 self.answer_label4['text'] = f"{self.answer['R']} = {self.answer['U']} ÷ {self.answer['I']}"
                 self.answer_label6['text'] = f"{self.answer['I']} = {self.answer['U']} ÷ {self.answer['R']}"
                 self.answer_label2['bg'] = self.answer_label4['bg'] = self.answer_label6['bg'] = 'red'
             except:
                 messagebox.showerror('Erro', 'U, R e I não batem')
-            else:
-                self.already_solved = True
 
-    def solve_equations(self, Equations):
-        self.success_solved = self.nonlinear = self.infinite = self.different_output = self.empty_symbols = self.already_solved = False
+    def solve_equations_nonlinear(self, equations):
+        solved = sp.nonlinsolve(equations, self.unknown_symbols)
+        self.parse_solve(solved)
 
-        equations = self.checks(Equations)
+    def solve_equations_linear(self, equations):
+        solved = sp.linsolve(equations, self.unknown_symbols)
+        self.parse_solve(solved)
 
-        if not self.already_solved:
-            if self.nonlinear:
-                solved = sp.nonlinsolve(equations, self.unknown_symbols)
-            else:
-                solved = sp.linsolve(equations, self.unknown_symbols)
-            self.success_solved = True
-
-        if self.success_solved:
-            # Parsing solved data:
-            solved = list(solved).pop()  # Transforming FiniteSet in a Tuple.
-
-            for number, symbol in zip(solved, self.unknown_symbols):
-                self.answer[f'{symbol}'] = f'{number}'
-
-        elif self.infinite:
-            for symbol in self.unknown_symbols:
-                self.answer[f'{symbol}'] = "[0, infinito)"
+    def parse_solve(self, solved):
+        solved = list(solved).pop()
+        for number, symbol in zip(solved, self.unknown_symbols):
+            self.answer[f'{symbol}'] = f'{number}'
+        self.output_print_normal()
 
     # Outputting solved data:
-    def output_print(self):
-        if self.different_output:
-            pass
-        elif self.empty_symbols:
-            self.answer_label1['text'] = "E = U + Ui"
-            self.answer_label2['text'] = "U = I × R"
-            self.answer_label3['text'] = "Ui = I × Ri"
-            self.answer_label4['text'] = "R = U ÷ I"
-            self.answer_label5['text'] = "Ri = Ui ÷ I"
-            self.answer_label6['text'] = "I = U ÷ R ou Ui ÷ Ri"
-        else:
-            try:
-                self.answer_label1['text'] = "E = " + str(self.answer['E']) + ' Volts'
-                self.answer_label2['text'] = "U = " + str(self.answer['U']) + ' Volts'
-                self.answer_label3['text'] = "Ui = " + str(self.answer['Ui']) + ' Volts'
-                self.answer_label4['text'] = "R = " + str(self.answer['R']) + ' Ohms'
-                self.answer_label5['text'] = "Ri = " + str(self.answer['Ri']) + ' Ohms'
-                self.answer_label6['text'] = "I = " + str(self.answer['I']) + ' Ampere'
-            except KeyError:
-                pass
+    def output_print_normal(self):
+        time.sleep(0.1)
+        self.answer_label1['text'] = "E = " + str(self.answer['E']) + ' Volts'
+        self.answer_label2['text'] = "U = " + str(self.answer['U']) + ' Volts'
+        self.answer_label3['text'] = "Ui = " + str(self.answer['Ui']) + ' Volts'
+        self.answer_label4['text'] = "R = " + str(self.answer['R']) + ' Ohms'
+        self.answer_label5['text'] = "Ri = " + str(self.answer['Ri']) + ' Ohms'
+        self.answer_label6['text'] = "I = " + str(self.answer['I']) + ' Ampere'
+
+    def output_print_empty(self):
+        time.sleep(0.1)
+        self.answer_label1['text'] = "E = U + Ui"
+        self.answer_label2['text'] = "U = I × R"
+        self.answer_label3['text'] = "Ui = I × Ri"
+        self.answer_label4['text'] = "R = U ÷ I"
+        self.answer_label5['text'] = "Ri = Ui ÷ I"
+        self.answer_label6['text'] = "I = U ÷ R ou Ui ÷ Ri"
+
+    def output_print_infinite(self):
+        for symbol in self.unknown_symbols:
+            self.answer[f'{symbol}'] = "[0, infinito)"
+        self.output_print_normal()
 
     def initiate(self):
         self.ResetLabel()
         self.parse_data(self.input_numbers())
-        self.solve_equations(self.creating_equations())
-        time.sleep(0.1)
-        self.output_print()
+        self.checks(self.creating_equations())
 
 
 if __name__ == "__main__":
