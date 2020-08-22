@@ -5,285 +5,281 @@ import time
 
 
 # Creating an input area:
-def input_numbers():
-    E1 = value_entry1.get()
-    U1 = value_entry2.get()
-    Ui1 = value_entry3.get()
-    R1 = value_entry4.get()
-    Ri1 = value_entry5.get()
-    I1 = value_entry6.get()
+class Window:
+    def __init__(self):
+        super().__init__()
 
-    return [E1, U1, Ui1, R1, Ri1, I1]
+        self.root = tk.Tk()  # Main window
+        self.root.eval('tk::PlaceWindow %s center' % self.root.winfo_toplevel())  # New trick to open window in front.
+        self.root.title("Análise de Gerador")
+        self.root.iconbitmap("battery.ico")
+        self.root.geometry('500x200')
 
+        self.root.minsize(500, 200)  # Minimum size for window
 
-# Parsing all inputs:
-def parse_data(values):
-    global answer, unknown_symbols
-    answer = {}  # Creating a dict to organize final data.
-    unknown_symbols = []  # Creating list for unknown symbols
-    symbols = ['E', 'U', 'Ui', 'R', 'Ri', 'I']
+        self.frame = tk.Frame(self.root, bg="gray")
+        self.frame.pack(fill="both", expand=True)
 
-    for value, symbol in zip(values, symbols):  # Much easier to parse with loops.
-        if value:
-            answer[symbol] = sp.S(value)
+        # GUI locational vars:
+        self.SLWid = 0.08
+        self.SLHei = 1 / 6
+        self.VEWid = 0.25
+
+        self.SetUI()
+
+        self.root.mainloop()
+
+    def SetUI(self):
+        # Labels to the entry
+        self.symbol_label1 = tk.Label(self.frame, font=("Lucida Grande", 15), text="E", borderwidth=2, relief="groove")
+        self.symbol_label1.place(relx=0, rely=0, relwidth=self.SLWid, relheight=self.SLHei)
+
+        self.symbol_label2 = tk.Label(self.frame, font=("Lucida Grande", 15), text="U", borderwidth=2, relief="groove")
+        self.symbol_label2.place(relx=0, rely=self.SLHei, relwidth=self.SLWid, relheight=self.SLHei)
+
+        self.symbol_label3 = tk.Label(self.frame, font=("Lucida Grande", 15), text="Ui", borderwidth=2, relief="groove")
+        self.symbol_label3.place(relx=0, rely=self.SLHei * 2, relwidth=self.SLWid, relheight=self.SLHei)
+
+        self.symbol_label4 = tk.Label(self.frame, font=("Lucida Grande", 15), text="R", borderwidth=2, relief="groove")
+        self.symbol_label4.place(relx=0, rely=self.SLHei * 3, relwidth=self.SLWid, relheight=self.SLHei)
+
+        self.symbol_label5 = tk.Label(self.frame, font=("Lucida Grande", 15), text="Ri", borderwidth=2, relief="groove")
+        self.symbol_label5.place(relx=0, rely=self.SLHei * 4, relwidth=self.SLWid, relheight=self.SLHei)
+
+        self.symbol_label6 = tk.Label(self.frame, font=("Lucida Grande", 15), text="I", borderwidth=2, relief="groove")
+        self.symbol_label6.place(relx=0, rely=self.SLHei * 5, relwidth=self.SLWid, relheight=self.SLHei)
+
+        # Entry to the values
+        self.value_entry1 = tk.Entry(self.frame, bg="dark gray")
+        self.value_entry1.place(relx=self.SLWid, rely=0, relwidth=self.VEWid, relheight=self.SLHei)
+
+        self.value_entry2 = tk.Entry(self.frame, bg="dark gray")
+        self.value_entry2.place(relx=self.SLWid, rely=self.SLHei, relwidth=self.VEWid, relheight=self.SLHei)
+
+        self.value_entry3 = tk.Entry(self.frame, bg="dark gray")
+        self.value_entry3.place(relx=self.SLWid, rely=self.SLHei * 2, relwidth=self.VEWid, relheight=self.SLHei)
+
+        self.value_entry4 = tk.Entry(self.frame, bg="dark gray")
+        self.value_entry4.place(relx=self.SLWid, rely=self.SLHei * 3, relwidth=self.VEWid, relheight=self.SLHei)
+
+        self.value_entry5 = tk.Entry(self.frame, bg="dark gray")
+        self.value_entry5.place(relx=self.SLWid, rely=self.SLHei * 4, relwidth=self.VEWid, relheight=self.SLHei)
+
+        self.value_entry6 = tk.Entry(self.frame, bg="dark gray")
+        self.value_entry6.place(relx=self.SLWid, rely=self.SLHei * 5, relwidth=self.VEWid, relheight=self.SLHei)
+
+        # Button to the function:
+        self.calculate_button = tk.Button(self.frame, text="Calcular", bg="light gray", command=lambda: self.initiate())
+        self.calculate_button.place(relx=self.SLWid + self.VEWid, rely=0, relwidth=0.15, relheight=1)
+
+        # Label to answer:
+        self.answer_label1 = tk.Label(self.frame, font=("Lucida Grande", 12), borderwidth=2, relief="sunken")
+        self.answer_label1.place(relx=self.SLWid + self.VEWid + 0.15, rely=0,
+                                 relwidth=1 - (self.SLWid + self.VEWid + 0.15), relheight=self.SLHei)
+
+        self.answer_label2 = tk.Label(self.frame, font=("Lucida Grande", 12), borderwidth=2, relief="sunken")
+        self.answer_label2.place(relx=self.SLWid + self.VEWid + 0.15, rely=self.SLHei,
+                                 relwidth=1 - (self.SLWid + self.VEWid + 0.15), relheight=self.SLHei)
+
+        self.answer_label3 = tk.Label(self.frame, font=("Lucida Grande", 12), borderwidth=2, relief="sunken")
+        self.answer_label3.place(relx=self.SLWid + self.VEWid + 0.15, rely=self.SLHei * 2,
+                                 relwidth=1 - (self.SLWid + self.VEWid + 0.15), relheight=self.SLHei)
+
+        self.answer_label4 = tk.Label(self.frame, font=("Lucida Grande", 13), borderwidth=2, relief="sunken")
+        self.answer_label4.place(relx=self.SLWid + self.VEWid + 0.15, rely=self.SLHei * 3,
+                                 relwidth=1 - (self.SLWid + self.VEWid + 0.15), relheight=self.SLHei)
+
+        self.answer_label5 = tk.Label(self.frame, font=("Lucida Grande", 13), borderwidth=2, relief="sunken")
+        self.answer_label5.place(relx=self.SLWid + self.VEWid + 0.15, rely=self.SLHei * 4,
+                                 relwidth=1 - (self.SLWid + self.VEWid + 0.15), relheight=self.SLHei)
+
+        self.answer_label6 = tk.Label(self.frame, font=("Lucida Grande", 13), borderwidth=2, relief="sunken")
+        self.answer_label6.place(relx=self.SLWid + self.VEWid + 0.15, rely=self.SLHei * 5,
+                                 relwidth=1 - (self.SLWid + self.VEWid + 0.15), relheight=self.SLHei)
+
+    def input_numbers(self):
+        E1 = self.value_entry1.get()
+        U1 = self.value_entry2.get()
+        Ui1 = self.value_entry3.get()
+        R1 = self.value_entry4.get()
+        Ri1 = self.value_entry5.get()
+        I1 = self.value_entry6.get()
+
+        return [E1, U1, Ui1, R1, Ri1, I1]
+
+    def parse_data(self, values):
+        self.answer = {}  # Creating a dict to organize final data.
+        self.unknown_symbols = []  # Creating list for unknown symbols
+        symbols = ['E', 'U', 'Ui', 'R', 'Ri', 'I']
+
+        for value, symbol in zip(values, symbols):  # Much easier to parse with loops.
+            if value:
+                self.answer[symbol] = sp.S(value)
+            else:
+                self.unknown_symbols.append(symbol)
+
+    def creating_equations(self):
+        E, U, Ui, R, Ri, I = sp.symbols('E U Ui R Ri I')  # Setting Equation Symbols
+        eq1 = sp.Eq(U + Ui - E, 0)
+        eq2 = sp.Eq(Ri * I - Ui, 0)
+        eq3 = sp.Eq(R * I - U, 0)
+
+        # Replacing known data in equations:
+        for symbol, data in self.answer.items():
+            eq1 = eq1.subs(symbol, data)
+            eq2 = eq2.subs(symbol, data)
+            eq3 = eq3.subs(symbol, data)
+
+        return [eq1, eq2, eq3]
+
+    # Merging all checks:
+    def checks(self, equations):
+        length = len(self.unknown_symbols)
+
+        if False in equations:
+            self.something_is_wrong(equations)
         else:
-            unknown_symbols.append(symbol)
+            equations[:] = [x for x in equations if x != True]
 
+            if length == 6:  # Empty data check.
+                messagebox.showwarning('Sério?', 'Nenhuma informação foi providenciada.')
+                self.empty_symbols = True
+                self.already_solved = True
 
-# Setting Equations:
-def creating_equations():
-    E, U, Ui, R, Ri, I = sp.symbols('E U Ui R Ri I')  # Setting Equation Symbols
-    eq1 = sp.Eq(U + Ui - E, 0)
-    eq2 = sp.Eq(Ri * I - Ui, 0)
-    eq3 = sp.Eq(R * I - U, 0)
-
-    # Replacing known data in equations:
-    for symbol, data in answer.items():
-        eq1 = eq1.subs(symbol, data)
-        eq2 = eq2.subs(symbol, data)
-        eq3 = eq3.subs(symbol, data)
-
-    equations = [eq1, eq2, eq3]
-
-    return equations
-
-
-# Merging all checks:
-def checks(equations):
-    length = len(unknown_symbols)
-
-    global already_solved, empty_symbols, nonlinear, infinite
-
-    if False in equations:
-        something_is_wrong(equations)
-    else:
-        equations[:] = [x for x in equations if x != True]
-
-        if length == 6:  # Empty data check.
-            messagebox.showwarning('Sério?', 'Nenhuma informação foi providenciada.')
-            empty_symbols = True
-            already_solved = True
-
-        elif length >= 4:  # Not enough data check.
-            if len(unknown_symbols) >= 4:
+            elif length >= 4:  # Not enough data check. STILL NEED TO DO
                 messagebox.showerror('Erro', 'Não foi possível realizar o cálculo devido a falta de informações.')
-                already_solved = True
+                self.already_solved = True
 
-        elif length == 3:  # Infinite check.
-            infinite_check = ['E' in unknown_symbols and 'U' in unknown_symbols and 'R' in unknown_symbols,
-                              'E' in unknown_symbols and 'Ui' in unknown_symbols and 'Ri' in unknown_symbols,
-                              'R' in unknown_symbols and 'Ri' in unknown_symbols and 'I' in unknown_symbols]
+            elif length == 3:  # Infinite check.
+                infinite_check = ['E' in self.unknown_symbols and 'U' in self.unknown_symbols and 'R' in self.unknown_symbols,
+                                  'E' in self.unknown_symbols and 'Ui' in self.unknown_symbols and 'Ri' in self.unknown_symbols,
+                                  'R' in self.unknown_symbols and 'Ri' in self.unknown_symbols and 'I' in self.unknown_symbols]
 
-            if any(infinite_check):
-                infinite = True
-                already_solved = True
+                if any(infinite_check):
+                    self.infinite = True
+                    self.already_solved = True
 
-        elif length == 2:  # Non linear check.
-            check_linearity = ['Ri' in unknown_symbols and 'I' in unknown_symbols,
-                               'E' in unknown_symbols and 'U' in unknown_symbols,
-                               'R' in unknown_symbols and 'I' in unknown_symbols]
+            elif length == 2:  # Non linear check.
+                check_linearity = ['Ri' in self.unknown_symbols and 'I' in self.unknown_symbols,
+                                   'E' in self.unknown_symbols and 'U' in self.unknown_symbols,
+                                   'R' in self.unknown_symbols and 'I' in self.unknown_symbols]
 
-            if any(check_linearity):
-                nonlinear = True
+                if any(check_linearity):
+                    self.nonlinear = True
 
-        elif length == 0:  # Complete set check.
-            already_solved = True
+            elif length == 0:  # Complete set check.
+                self.already_solved = True
 
-        return equations
+            return equations
 
+    def something_is_wrong(self, equations):
+        # Finding where is wrong.
+        error_equation = []
+        for equation in equations:
+            if equation == False:
+                error_equation.append(True)
+            else:
+                error_equation.append(False)
 
-def something_is_wrong(equations):
-    # Finding where is wrong.
-    global different_output, already_solved
-    error_equation = []
-    for equation in equations:
-        if equation == False:
-            error_equation.append(True)
-        else:
-            error_equation.append(False)
+        if error_equation[0]:
+            self.different_output = True
+            try:
+                messagebox.showerror('Erro', f"E, U e Ui não batem, {self.answer['E']} = {self.answer['U']} + {self.answer['Ui']}")
+                self.answer_label1['text'] = f"{self.answer['E']} = {self.answer['U']} + {self.answer['Ui']}"
+                self.answer_label2['text'] = f"{self.answer['U']} = {self.answer['E']} - {self.answer['Ui']}"
+                self.answer_label3['text'] = f"{self.answer['Ui']} = {self.answer['E']} - {self.answer['U']}"
+                self.answer_label1['bg'] = self.answer_label2['bg'] = self.answer_label3['bg'] = 'red'
+            except:
+                messagebox.showerror('Erro', 'E, U e Ui não batem')
+            else:
+                self.already_solved = True
 
-    if error_equation[0]:
-        different_output = True
-        try:
-            messagebox.showerror('Erro', f"E, U e Ui não batem, {answer['E']} = {answer['U']} + {answer['Ui']}")
-            answer_label1['text'] = f"{answer['E']} = {answer['U']} + {answer['Ui']}"
-            answer_label2['text'] = f"{answer['U']} = {answer['E']} - {answer['Ui']}"
-            answer_label3['text'] = f"{answer['Ui']} = {answer['E']} - {answer['U']}"
-            answer_label1['bg'] = answer_label2['bg'] = answer_label3['bg'] = 'red'
-        except:
-            messagebox.showerror('Erro', 'E, U e Ui não batem')
-        else:
-            already_solved = True
+        if error_equation[1]:
+            self.different_output = True
+            try:
+                messagebox.showerror('Erro', f"Ui, Ri e I não batem, {self.answer['Ui']} = {self.answer['Ri']} × {self.answer['I']}")
+                self.answer_label3['text'] = f"{self.answer['Ui']} = {self.answer['Ri']} × {self.answer['I']}"
+                self.answer_label5['text'] = f"{self.answer['Ri']} = {self.answer['Ui']} ÷ {self.answer['I']}"
+                self.answer_label6['text'] = f"{self.answer['I']} = {self.answer['Ui']} ÷ {self.answer['Ri']}"
+                self.answer_label3['bg'] = self.answer_label5['bg'] = self.answer_label6['bg'] = 'red'
+            except:
+                messagebox.showerror('Erro', 'Ui, Ri e I não batem')
+            else:
+                self.already_solved = True
 
-    if error_equation[1]:
-        different_output = True
-        try:
-            messagebox.showerror('Erro', f"Ui, Ri e I não batem, {answer['Ui']} = {answer['Ri']} × {answer['I']}")
-            answer_label3['text'] = f"{answer['Ui']} = {answer['Ri']} × {answer['I']}"
-            answer_label5['text'] = f"{answer['Ri']} = {answer['Ui']} ÷ {answer['I']}"
-            answer_label6['text'] = f"{answer['I']} = {answer['Ui']} ÷ {answer['Ri']}"
-            answer_label3['bg'] = answer_label5['bg'] = answer_label6['bg'] = 'red'
-        except:
-            messagebox.showerror('Erro', 'Ui, Ri e I não batem')
-        else:
-            already_solved = True
+        if error_equation[2]:
+            self.different_output = True
+            try:
+                messagebox.showerror('Erro', f"U, R e I não batem, {self.answer['U']} = {self.answer['R']} × {self.answer['I']}")
+                self.answer_label2['text'] = f"{self.answer['U']} = {self.answer['R']} × {self.answer['I']}"
+                self.answer_label4['text'] = f"{self.answer['R']} = {self.answer['U']} ÷ {self.answer['I']}"
+                self.answer_label6['text'] = f"{self.answer['I']} = {self.answer['U']} ÷ {self.answer['R']}"
+                self.answer_label2['bg'] = self.answer_label4['bg'] = self.answer_label6['bg'] = 'red'
+            except:
+                messagebox.showerror('Erro', 'U, R e I não batem')
+            else:
+                self.already_solved = True
 
-    if error_equation[2]:
-        different_output = True
-        try:
-            messagebox.showerror('Erro', f"U, R e I não batem, {answer['U']} = {answer['R']} × {answer['I']}")
-            answer_label2['text'] = f"{answer['U']} = {answer['R']} × {answer['I']}"
-            answer_label4['text'] = f"{answer['R']} = {answer['U']} ÷ {answer['I']}"
-            answer_label6['text'] = f"{answer['I']} = {answer['U']} ÷ {answer['R']}"
-            answer_label2['bg'] = answer_label4['bg'] = answer_label6['bg'] = 'red'
-        except:
-            messagebox.showerror('Erro', 'U, R e I não batem')
-        else:
-            already_solved = True
+    def solve_equations(self, Equations):
+        self.success_solved = self.nonlinear = self.infinite = self.different_output = self.empty_symbols = self.already_solved = False
 
+        equations = self.checks(Equations)
 
-def solve_equations(Equations):
-    # Solving equations:
-    global answer, nonlinear, already_solved, empty_symbols, different_output, infinite
-    success_solved = nonlinear = infinite = different_output = empty_symbols = already_solved = False
+        if not self.already_solved:
+            if self.nonlinear:
+                solved = sp.nonlinsolve(equations, self.unknown_symbols)
+            else:
+                solved = sp.linsolve(equations, self.unknown_symbols)
+            self.success_solved = True
 
-    equations = checks(Equations)
+        if self.success_solved:
+            # Parsing solved data:
+            solved = list(solved).pop()  # Transforming FiniteSet in a Tuple.
 
-    if not already_solved:
-        if nonlinear:
-            solved = sp.nonlinsolve(equations, unknown_symbols)
-        else:
-            solved = sp.linsolve(equations, unknown_symbols)
-        success_solved = True
+            for number, symbol in zip(solved, self.unknown_symbols):
+                self.answer[f'{symbol}'] = f'{number}'
 
-    if success_solved:
-        # Parsing solved data:
-        solved = list(solved).pop()  # Transforming FiniteSet in a Tuple.
+        elif self.infinite:
+            for symbol in self.unknown_symbols:
+                self.answer[f'{symbol}'] = "[0, infinito)"
 
-        for number, symbol in zip(solved, unknown_symbols):
-            answer[f'{symbol}'] = f'{number}'
-
-    elif infinite:
-        for symbol in unknown_symbols:
-                answer[f'{symbol}'] = "[0, infinito)"
-
-
-# Outputting solved data:
-def output_print():
-    if different_output:
-        pass
-    elif empty_symbols:
-        answer_label1['text'] = "E = U + Ui"
-        answer_label2['text'] = "U = I × R"
-        answer_label3['text'] = "Ui = I × Ri"
-        answer_label4['text'] = "R = U ÷ I"
-        answer_label5['text'] = "Ri = Ui ÷ I"
-        answer_label6['text'] = "I = U ÷ R ou Ui ÷ Ri"
-    else:
-        try:
-            answer_label1['text'] = "E = " + str(answer['E']) + ' Volts'
-            answer_label2['text'] = "U = " + str(answer['U']) + ' Volts'
-            answer_label3['text'] = "Ui = " + str(answer['Ui']) + ' Volts'
-            answer_label4['text'] = "R = " + str(answer['R']) + ' Ohms'
-            answer_label5['text'] = "Ri = " + str(answer['Ri']) + ' Ohms'
-            answer_label6['text'] = "I = " + str(answer['I']) + ' Ampere'
-        except KeyError:
+    # Outputting solved data:
+    def output_print(self):
+        if self.different_output:
             pass
+        elif self.empty_symbols:
+            self.answer_label1['text'] = "E = U + Ui"
+            self.answer_label2['text'] = "U = I × R"
+            self.answer_label3['text'] = "Ui = I × Ri"
+            self.answer_label4['text'] = "R = U ÷ I"
+            self.answer_label5['text'] = "Ri = Ui ÷ I"
+            self.answer_label6['text'] = "I = U ÷ R ou Ui ÷ Ri"
+        else:
+            try:
+                self.answer_label1['text'] = "E = " + str(self.answer['E']) + ' Volts'
+                self.answer_label2['text'] = "U = " + str(self.answer['U']) + ' Volts'
+                self.answer_label3['text'] = "Ui = " + str(self.answer['Ui']) + ' Volts'
+                self.answer_label4['text'] = "R = " + str(self.answer['R']) + ' Ohms'
+                self.answer_label5['text'] = "Ri = " + str(self.answer['Ri']) + ' Ohms'
+                self.answer_label6['text'] = "I = " + str(self.answer['I']) + ' Ampere'
+            except KeyError:
+                pass
 
+    def initiate(self):
+        self.answer_label1['text'] = "E = -----------------"
+        self.answer_label2['text'] = "U = -----------------"
+        self.answer_label3['text'] = "Ui = -----------------"
+        self.answer_label4['text'] = "R = -----------------"
+        self.answer_label5['text'] = "Ri = -----------------"
+        self.answer_label6['text'] = "I = -----------------"
+        self.answer_label1['bg'] = self.answer_label2['bg'] = self.answer_label3['bg'] = self.answer_label4['bg'] = self.answer_label5['bg'] = self.answer_label6['bg'] = 'honeydew'
+        self.answer_label1.update()  # For some motive this updates all of them
 
-def initiate():
-    answer_label1['text'] = "==================="
-    answer_label2['text'] = "==================="
-    answer_label3['text'] = "==================="
-    answer_label4['text'] = "==================="
-    answer_label5['text'] = "==================="
-    answer_label6['text'] = "==================="
-    answer_label1['bg'] = answer_label2['bg'] = answer_label3['bg'] = answer_label4['bg'] = answer_label5['bg'] = answer_label6['bg'] = 'honeydew'
-    answer_label1.update()  # For some motive this updates all of them
-
-    parse_data(input_numbers())
-    solve_equations(creating_equations())
-    time.sleep(0.1)
-    output_print()
+        self.parse_data(self.input_numbers())
+        self.solve_equations(self.creating_equations())
+        time.sleep(0.1)
+        self.output_print()
 
 
 if __name__ == "__main__":
-    # Creating Gui:
-    root = tk.Tk()  # Main window
-    root.eval('tk::PlaceWindow %s center' % root.winfo_toplevel())  # New trick to open window in front.
-    root.title("Análise de Gerador")
-    root.iconbitmap("battery.ico")
-    root.geometry('500x200')
-
-    root.minsize(500, 200)  # Minimum size for window
-
-    frame = tk.Frame(root, bg="gray")
-    frame.pack(fill="both", expand=True)
-
-    # GUI locational vars:
-    SLWid = 0.08
-    SLHei = 1 / 6
-    VEWid = 0.25
-
-    # Labels to the entry
-    symbol_label1 = tk.Label(frame, font=("Lucida Grande", 15), text="E", borderwidth=2, relief="groove")
-    symbol_label1.place(relx=0, rely=0, relwidth=SLWid, relheight=SLHei)
-
-    symbol_label2 = tk.Label(frame, font=("Lucida Grande", 15), text="U", borderwidth=2, relief="groove")
-    symbol_label2.place(relx=0, rely=SLHei, relwidth=SLWid, relheight=SLHei)
-
-    symbol_label3 = tk.Label(frame, font=("Lucida Grande", 15), text="Ui", borderwidth=2, relief="groove")
-    symbol_label3.place(relx=0, rely=SLHei * 2, relwidth=SLWid, relheight=SLHei)
-
-    symbol_label4 = tk.Label(frame, font=("Lucida Grande", 15), text="R", borderwidth=2, relief="groove")
-    symbol_label4.place(relx=0, rely=SLHei * 3, relwidth=SLWid, relheight=SLHei)
-
-    symbol_label5 = tk.Label(frame, font=("Lucida Grande", 15), text="Ri", borderwidth=2, relief="groove")
-    symbol_label5.place(relx=0, rely=SLHei * 4, relwidth=SLWid, relheight=SLHei)
-
-    symbol_label6 = tk.Label(frame, font=("Lucida Grande", 15), text="I", borderwidth=2, relief="groove")
-    symbol_label6.place(relx=0, rely=SLHei * 5, relwidth=SLWid, relheight=SLHei)
-
-    # Entry to the values
-    value_entry1 = tk.Entry(frame, bg="dark gray")
-    value_entry1.place(relx=SLWid, rely=0, relwidth=VEWid, relheight=SLHei)
-
-    value_entry2 = tk.Entry(frame, bg="dark gray")
-    value_entry2.place(relx=SLWid, rely=SLHei, relwidth=VEWid, relheight=SLHei)
-
-    value_entry3 = tk.Entry(frame, bg="dark gray")
-    value_entry3.place(relx=SLWid, rely=SLHei * 2, relwidth=VEWid, relheight=SLHei)
-
-    value_entry4 = tk.Entry(frame, bg="dark gray")
-    value_entry4.place(relx=SLWid, rely=SLHei * 3, relwidth=VEWid, relheight=SLHei)
-
-    value_entry5 = tk.Entry(frame, bg="dark gray")
-    value_entry5.place(relx=SLWid, rely=SLHei * 4, relwidth=VEWid, relheight=SLHei)
-
-    value_entry6 = tk.Entry(frame, bg="dark gray")
-    value_entry6.place(relx=SLWid, rely=SLHei * 5, relwidth=VEWid, relheight=SLHei)
-
-    # Button to the function:
-    calculate_button = tk.Button(frame, text="Calcular", bg="light gray", command=lambda: initiate())
-    calculate_button.place(relx=SLWid + VEWid, rely=0, relwidth=0.15, relheight=1)
-
-    # Label to answer:
-    answer_label1 = tk.Label(frame, font=("Lucida Grande", 12), borderwidth=2, relief="sunken")
-    answer_label1.place(relx=SLWid + VEWid + 0.15, rely=0, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
-
-    answer_label2 = tk.Label(frame, font=("Lucida Grande", 12), borderwidth=2, relief="sunken")
-    answer_label2.place(relx=SLWid + VEWid + 0.15, rely=SLHei, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
-
-    answer_label3 = tk.Label(frame, font=("Lucida Grande", 12), borderwidth=2, relief="sunken")
-    answer_label3.place(relx=SLWid + VEWid + 0.15, rely=SLHei * 2, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
-
-    answer_label4 = tk.Label(frame, font=("Lucida Grande", 13), borderwidth=2, relief="sunken")
-    answer_label4.place(relx=SLWid + VEWid + 0.15, rely=SLHei * 3, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
-
-    answer_label5 = tk.Label(frame, font=("Lucida Grande", 13), borderwidth=2, relief="sunken")
-    answer_label5.place(relx=SLWid + VEWid + 0.15, rely=SLHei * 4, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
-
-    answer_label6 = tk.Label(frame, font=("Lucida Grande", 13), borderwidth=2, relief="sunken")
-    answer_label6.place(relx=SLWid + VEWid + 0.15, rely=SLHei * 5, relwidth=1 - (SLWid + VEWid + 0.15), relheight=SLHei)
-
-    root.mainloop()
+    window = Window()
