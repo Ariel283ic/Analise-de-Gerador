@@ -12,7 +12,11 @@ class Window:
         self.root = tk.Tk()  # Main window
         self.root.eval('tk::PlaceWindow %s center' % self.root.winfo_toplevel())  # New trick to open window in front.
         self.root.title("Análise de Gerador")
-        self.root.iconbitmap("battery.ico")
+        try:
+            self.root.iconbitmap("battery.ico")
+        except:
+            pass
+
         self.root.geometry('500x200')
 
         self.root.minsize(500, 200)  # Minimum size for window
@@ -169,6 +173,8 @@ class Window:
 
                 if any(infinite_check):
                     self.output_print_infinite()
+                else:
+                    self.solve_equations_nonlinear(equations)
 
             elif length == 2:  # Non linear check.
                 check_linearity = ['Ri' in self.unknown_symbols and 'I' in self.unknown_symbols,
@@ -177,12 +183,11 @@ class Window:
 
                 if any(check_linearity):
                     self.solve_equations_nonlinear(equations)
+                else:
+                    self.solve_equations_linear(equations)
 
             elif length == 0:  # Complete set check.
                 self.output_print_normal()
-
-            else:
-                self.solve_equations_linear(equations)
 
     def output_print_wrong(self, equations):
         # Finding where is wrong.
