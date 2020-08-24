@@ -30,7 +30,7 @@ class Window:
         self.VEWid = 0.25
 
         self.set_ui_components()
-        self.color_or_reset_output_labels()
+        self.reset_output_labels_text()
 
         self.root.mainloop()
 
@@ -102,14 +102,15 @@ class Window:
         self.answer_label6.place(relx=self.SLWid + self.VEWid + 0.15, rely=self.SLHei * 5,
                                  relwidth=1 - (self.SLWid + self.VEWid + 0.15), relheight=self.SLHei)
 
-    def color_or_reset_output_labels(self, color='honeydew', reset_labels=True):
-        if reset_labels:
-            self.answer_label1['text'] = "E = -----------------"
-            self.answer_label2['text'] = "U = -----------------"
-            self.answer_label3['text'] = "Ui = -----------------"
-            self.answer_label4['text'] = "R = -----------------"
-            self.answer_label5['text'] = "Ri = -----------------"
-            self.answer_label6['text'] = "I = -----------------"
+    def reset_output_labels_text(self):
+        self.answer_label1['text'] = "E = -----------------"
+        self.answer_label2['text'] = "U = -----------------"
+        self.answer_label3['text'] = "Ui = -----------------"
+        self.answer_label4['text'] = "R = -----------------"
+        self.answer_label5['text'] = "Ri = -----------------"
+        self.answer_label6['text'] = "I = -----------------"
+
+    def color_output_labels(self, color='honeydew'):
         self.answer_label1['bg'] = self.answer_label2['bg'] = self.answer_label3['bg'] = self.answer_label4['bg'] = \
             self.answer_label5['bg'] = self.answer_label6['bg'] = color
         self.answer_label1.update()
@@ -206,7 +207,7 @@ class Window:
                 self.answer_label1['text'] = f"{self.answer['E']} = {self.answer['U']} + {self.answer['Ui']}"
                 self.answer_label2['text'] = f"{self.answer['U']} = {self.answer['E']} - {self.answer['Ui']}"
                 self.answer_label3['text'] = f"{self.answer['Ui']} = {self.answer['E']} - {self.answer['U']}"
-                self.color_or_reset_output_labels('red', False)
+                self.color_output_labels('red')
             except:
                 messagebox.showerror('Erro', 'E, U e Ui não batem')
 
@@ -217,7 +218,7 @@ class Window:
                 self.answer_label3['text'] = f"{self.answer['Ui']} = {self.answer['Ri']} × {self.answer['I']}"
                 self.answer_label5['text'] = f"{self.answer['Ri']} = {self.answer['Ui']} ÷ {self.answer['I']}"
                 self.answer_label6['text'] = f"{self.answer['I']} = {self.answer['Ui']} ÷ {self.answer['Ri']}"
-                self.color_or_reset_output_labels('red', False)
+                self.color_output_labels('red')
             except:
                 messagebox.showerror('Erro', 'Ui, Ri e I não batem')
 
@@ -228,7 +229,7 @@ class Window:
                 self.answer_label2['text'] = f"{self.answer['U']} = {self.answer['R']} × {self.answer['I']}"
                 self.answer_label4['text'] = f"{self.answer['R']} = {self.answer['U']} ÷ {self.answer['I']}"
                 self.answer_label6['text'] = f"{self.answer['I']} = {self.answer['U']} ÷ {self.answer['R']}"
-                self.color_or_reset_output_labels('red', False)
+                self.color_output_labels('red')
             except:
                 messagebox.showerror('Erro', 'U, R e I não batem')
 
@@ -255,7 +256,7 @@ class Window:
         self.answer_label4['text'] = "R = " + str(self.answer['R']) + ' Ohms'
         self.answer_label5['text'] = "Ri = " + str(self.answer['Ri']) + ' Ohms'
         self.answer_label6['text'] = "I = " + str(self.answer['I']) + ' Ampere'
-        self.color_or_reset_output_labels('light green', False)
+        self.color_output_labels('light green')
 
     def output_print_empty(self):
         time.sleep(0.1)
@@ -265,6 +266,7 @@ class Window:
         self.answer_label4['text'] = "R = U ÷ I"
         self.answer_label5['text'] = "Ri = Ui ÷ I"
         self.answer_label6['text'] = "I = U ÷ R ou Ui ÷ Ri"
+        self.color_output_labels('light yellow')
 
     def output_set_infinite(self):
         for symbol in self.unknown_symbols:
@@ -276,7 +278,7 @@ class Window:
 
 
     def initiate(self):
-        self.color_or_reset_output_labels()
+        self.reset_output_labels_text()
         self.parse_data(self.input_numbers())
         self.all_checks(self.creating_equations())
 
