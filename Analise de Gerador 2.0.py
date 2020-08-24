@@ -29,12 +29,12 @@ class Window:
         self.SLHei = 1 / 6
         self.VEWid = 0.25
 
-        self.SetUI()
-        self.ResetLabel()
+        self.set_ui_components()
+        self.color_or_reset_output_labels()
 
         self.root.mainloop()
 
-    def SetUI(self):
+    def set_ui_components(self):
         # Labels to the entry
         self.symbol_label1 = tk.Label(self.frame, font=("Lucida Grande", 15), text="E", borderwidth=2, relief="groove")
         self.symbol_label1.place(relx=0, rely=0, relwidth=self.SLWid, relheight=self.SLHei)
@@ -102,15 +102,16 @@ class Window:
         self.answer_label6.place(relx=self.SLWid + self.VEWid + 0.15, rely=self.SLHei * 5,
                                  relwidth=1 - (self.SLWid + self.VEWid + 0.15), relheight=self.SLHei)
 
-    def ResetLabel(self):
-        self.answer_label1['text'] = "E = -----------------"
-        self.answer_label2['text'] = "U = -----------------"
-        self.answer_label3['text'] = "Ui = -----------------"
-        self.answer_label4['text'] = "R = -----------------"
-        self.answer_label5['text'] = "Ri = -----------------"
-        self.answer_label6['text'] = "I = -----------------"
+    def color_or_reset_output_labels(self, color='honeydew', reset_labels=True):
+        if reset_labels:
+            self.answer_label1['text'] = "E = -----------------"
+            self.answer_label2['text'] = "U = -----------------"
+            self.answer_label3['text'] = "Ui = -----------------"
+            self.answer_label4['text'] = "R = -----------------"
+            self.answer_label5['text'] = "Ri = -----------------"
+            self.answer_label6['text'] = "I = -----------------"
         self.answer_label1['bg'] = self.answer_label2['bg'] = self.answer_label3['bg'] = self.answer_label4['bg'] = \
-            self.answer_label5['bg'] = self.answer_label6['bg'] = 'honeydew'
+            self.answer_label5['bg'] = self.answer_label6['bg'] = color
         self.answer_label1.update()
 
     def input_numbers(self):
@@ -149,11 +150,11 @@ class Window:
         return [eq1, eq2, eq3]
 
     # Merging all checks:
-    def checks(self, equations):
+    def all_checks(self, equations):
         length = len(self.unknown_symbols)
 
         if False in equations:
-            self.output_print_wrong(equations)
+            self.check_and_output_print_errors(equations)
         else:
             equations[:] = [x for x in equations if x != True]
 
@@ -163,7 +164,7 @@ class Window:
 
             elif length >= 4:  # Not enough data check. STILL NEED TO DO
                 messagebox.showerror('Erro', 'Não foi possível realizar o cálculo devido a falta de informações.')
-            #    self.PLACEHOLDER()
+                self.output_set_placeholder()
 
             elif length == 3:  # Infinite check.
                 infinite_check = [
@@ -172,7 +173,7 @@ class Window:
                     'R' in self.unknown_symbols and 'Ri' in self.unknown_symbols and 'I' in self.unknown_symbols]
 
                 if any(infinite_check):
-                    self.output_print_infinite()
+                    self.output_set_infinite()
                 else:
                     self.solve_equations_nonlinear(equations)
 
@@ -189,7 +190,7 @@ class Window:
             elif length == 0:  # Complete set check.
                 self.output_print_normal()
 
-    def output_print_wrong(self, equations):
+    def check_and_output_print_errors(self, equations):
         # Finding where is wrong.
         error_equation = []
         for equation in equations:
@@ -205,7 +206,7 @@ class Window:
                 self.answer_label1['text'] = f"{self.answer['E']} = {self.answer['U']} + {self.answer['Ui']}"
                 self.answer_label2['text'] = f"{self.answer['U']} = {self.answer['E']} - {self.answer['Ui']}"
                 self.answer_label3['text'] = f"{self.answer['Ui']} = {self.answer['E']} - {self.answer['U']}"
-                self.answer_label1['bg'] = self.answer_label2['bg'] = self.answer_label3['bg'] = 'red'
+                self.color_or_reset_output_labels('red', False)
             except:
                 messagebox.showerror('Erro', 'E, U e Ui não batem')
 
@@ -216,7 +217,7 @@ class Window:
                 self.answer_label3['text'] = f"{self.answer['Ui']} = {self.answer['Ri']} × {self.answer['I']}"
                 self.answer_label5['text'] = f"{self.answer['Ri']} = {self.answer['Ui']} ÷ {self.answer['I']}"
                 self.answer_label6['text'] = f"{self.answer['I']} = {self.answer['Ui']} ÷ {self.answer['Ri']}"
-                self.answer_label3['bg'] = self.answer_label5['bg'] = self.answer_label6['bg'] = 'red'
+                self.color_or_reset_output_labels('red', False)
             except:
                 messagebox.showerror('Erro', 'Ui, Ri e I não batem')
 
@@ -227,19 +228,19 @@ class Window:
                 self.answer_label2['text'] = f"{self.answer['U']} = {self.answer['R']} × {self.answer['I']}"
                 self.answer_label4['text'] = f"{self.answer['R']} = {self.answer['U']} ÷ {self.answer['I']}"
                 self.answer_label6['text'] = f"{self.answer['I']} = {self.answer['U']} ÷ {self.answer['R']}"
-                self.answer_label2['bg'] = self.answer_label4['bg'] = self.answer_label6['bg'] = 'red'
+                self.color_or_reset_output_labels('red', False)
             except:
                 messagebox.showerror('Erro', 'U, R e I não batem')
 
     def solve_equations_nonlinear(self, equations):
         solved = sp.nonlinsolve(equations, self.unknown_symbols)
-        self.parse_solve(solved)
+        self.parse_solved_data_to_answer(solved)
 
     def solve_equations_linear(self, equations):
         solved = sp.linsolve(equations, self.unknown_symbols)
-        self.parse_solve(solved)
+        self.parse_solved_data_to_answer(solved)
 
-    def parse_solve(self, solved):
+    def parse_solved_data_to_answer(self, solved):
         solved = list(solved).pop()
         for number, symbol in zip(solved, self.unknown_symbols):
             self.answer[f'{symbol}'] = f'{number}'
@@ -254,6 +255,7 @@ class Window:
         self.answer_label4['text'] = "R = " + str(self.answer['R']) + ' Ohms'
         self.answer_label5['text'] = "Ri = " + str(self.answer['Ri']) + ' Ohms'
         self.answer_label6['text'] = "I = " + str(self.answer['I']) + ' Ampere'
+        self.color_or_reset_output_labels('light green', False)
 
     def output_print_empty(self):
         time.sleep(0.1)
@@ -264,15 +266,19 @@ class Window:
         self.answer_label5['text'] = "Ri = Ui ÷ I"
         self.answer_label6['text'] = "I = U ÷ R ou Ui ÷ Ri"
 
-    def output_print_infinite(self):
+    def output_set_infinite(self):
         for symbol in self.unknown_symbols:
             self.answer[f'{symbol}'] = "[0, infinito)"
         self.output_print_normal()
 
+    def output_set_placeholder(self):
+        pass
+
+
     def initiate(self):
-        self.ResetLabel()
+        self.color_or_reset_output_labels()
         self.parse_data(self.input_numbers())
-        self.checks(self.creating_equations())
+        self.all_checks(self.creating_equations())
 
 
 if __name__ == "__main__":
