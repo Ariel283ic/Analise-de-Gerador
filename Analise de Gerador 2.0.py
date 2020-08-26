@@ -123,6 +123,9 @@ class Window:
         ri1 = self.value_entry5.get()
         i1 = self.value_entry6.get()
 
+        if not all([e1.isnumeric() or not e1, u1.isnumeric() or not u1, ui1.isnumeric() or not ui1, r1.isnumeric() or not r1, ri1.isnumeric() or not ri1, i1.isnumeric() or not i1]):
+            messagebox.showerror('ERRO', 'Você escreveu letras na caixa de entrada. USE NUMEROS!')
+            return False
         return [e1, u1, ui1, r1, ri1, i1]
 
     def parse_data(self, values, second_run=False):
@@ -316,8 +319,10 @@ class Window:
 
     def initiate(self):
         self.reset_output_labels_text()
-        self.parse_data(self.input_numbers())
-        self.all_checks(self.creating_equations())
+        values = self.input_numbers()
+        if values:
+            self.parse_data(values)
+            self.all_checks(self.creating_equations())
 
 
 if __name__ == "__main__":
