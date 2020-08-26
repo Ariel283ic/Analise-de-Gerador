@@ -123,6 +123,9 @@ class Window:
         ri1 = self.value_entry5.get()
         i1 = self.value_entry6.get()
 
+        if not all([e1.isnumeric() or not e1, u1.isnumeric() or not u1, ui1.isnumeric() or not ui1, r1.isnumeric() or not r1, ri1.isnumeric() or not ri1, i1.isnumeric() or not i1]):
+            messagebox.showerror('ERRO', 'Você escreveu letras na caixa de entrada. USE NUMEROS!')
+            return False
         return [e1, u1, ui1, r1, ri1, i1]
 
     def parse_data(self, values, second_run=False):
@@ -136,7 +139,7 @@ class Window:
             self.answer = {}  # Creating a dict to organize final data.
             for value, symbol in zip(values, symbols):  # Much easier to parse with loops.
                 if value:
-                    self.answer[symbol] = sp.S(value)
+                    self.answer[symbol] = sp.S(int(value))
                 else:
                     self.unknown_symbols.append(symbol)
 
@@ -172,8 +175,7 @@ class Window:
                 self.output_print_empty()
 
             elif length >= 4:  # Not enough data check. STILL NEED TO DO
-                messagebox.showerror('Erro', 'Não foi possível realizar o cálculo devido a falta de informações.')
-                self.output_set_placeholder()
+                self.two_symbols_process_initiate()
 
             elif length == 3:  # Infinite check.
                 infinite_check = [
@@ -282,21 +284,24 @@ class Window:
             self.answer[f'{symbol}'] = "[0, infinito)"
         self.output_print_normal()
 
-    def output_set_placeholder(self):
+    def two_symbols_process_initiate(self):
         equation_1_symbols = ('E', 'U', 'Ui')
-        equation_2_symbols = ('U', 'R', 'I')
-        equation_3_symbols = ('Ui', 'Ri', 'I')
+        equation_2_symbols = ('Ui', 'Ri', 'I')
+        equation_3_symbols = ('U', 'R', 'I')
         self.symbols_new_group = []
 
         equation_1_add = self.find_the_right_equation(equation_1_symbols)
         equation_2_add = self.find_the_right_equation(equation_2_symbols)
         equation_3_add = self.find_the_right_equation(equation_3_symbols)
 
-        self.unknown_symbols = self.symbols_new_group
+        if not any([equation_1_add, equation_2_add, equation_3_add]):
+            messagebox.showerror('Erro', 'Não foi possível realizar o cálculo devido a falta de informações.')
+        else:
+            self.unknown_symbols = self.symbols_new_group
 
-        self.solve_equations_linear(self.creating_equations(equation_1_add, equation_2_add, equation_3_add), False)
-        self.parse_data(0, True)
-        self.all_checks(self.creating_equations())
+            self.solve_equations_linear(self.creating_equations(equation_1_add, equation_2_add, equation_3_add), False)
+            self.parse_data(0, True)
+            self.all_checks(self.creating_equations())
 
     def find_the_right_equation(self, symbols):
         symbols_in_equation = 0
@@ -314,8 +319,10 @@ class Window:
 
     def initiate(self):
         self.reset_output_labels_text()
-        self.parse_data(self.input_numbers())
-        self.all_checks(self.creating_equations())
+        values = self.input_numbers()
+        if values:
+            self.parse_data(values)
+            self.all_checks(self.creating_equations())
 
 
 if __name__ == "__main__":
