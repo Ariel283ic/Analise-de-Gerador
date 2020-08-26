@@ -125,22 +125,27 @@ class Window:
 
         return [e1, u1, ui1, r1, ri1, i1]
 
-    def parse_data(self, values):
-        self.answer = {}  # Creating a dict to organize final data.
-        self.unknown_symbols = []  # Creating list for unknown symbols
+    def parse_data(self, values, second_run=False):
         symbols = ['E', 'U', 'Ui', 'R', 'Ri', 'I']
+        self.unknown_symbols = []
+        if second_run:
+            for symbol in self.answer.keys():
+                symbols.remove(symbol)
+            self.unknown_symbols = symbols
+        else:
+            self.answer = {}  # Creating a dict to organize final data.
+            for value, symbol in zip(values, symbols):  # Much easier to parse with loops.
+                if value:
+                    self.answer[symbol] = sp.S(value)
+                else:
+                    self.unknown_symbols.append(symbol)
 
-        for value, symbol in zip(values, symbols):  # Much easier to parse with loops.
-            if value:
-                self.answer[symbol] = sp.S(value)
-            else:
-                self.unknown_symbols.append(symbol)
-
-    def creating_equations(self):
+    def creating_equations(self, eq1_check=True, eq2_check=True, eq3_check=True):
         E, U, Ui, R, Ri, I = sp.symbols('E U Ui R Ri I')  # Setting Equation Symbols
         eq1 = sp.Eq(U + Ui - E, 0)
         eq2 = sp.Eq(Ri * I - Ui, 0)
         eq3 = sp.Eq(R * I - U, 0)
+        equations = []
 
         # Replacing known data in equations:
         for symbol, data in self.answer.items():
@@ -148,7 +153,10 @@ class Window:
             eq2 = eq2.subs(symbol, data)
             eq3 = eq3.subs(symbol, data)
 
-        return [eq1, eq2, eq3]
+        if eq1_check: equations.append(eq1)
+        if eq2_check: equations.append(eq2)
+        if eq3_check: equations.append(eq3)
+        return equations
 
     # Merging all checks:
     def all_checks(self, equations):
@@ -237,15 +245,16 @@ class Window:
         solved = sp.nonlinsolve(equations, self.unknown_symbols)
         self.parse_solved_data_to_answer(solved)
 
-    def solve_equations_linear(self, equations):
+    def solve_equations_linear(self, equations, go_on=True):
         solved = sp.linsolve(equations, self.unknown_symbols)
-        self.parse_solved_data_to_answer(solved)
+        self.parse_solved_data_to_answer(solved, go_on)
 
-    def parse_solved_data_to_answer(self, solved):
+    def parse_solved_data_to_answer(self, solved, print=True):
         solved = list(solved).pop()
         for number, symbol in zip(solved, self.unknown_symbols):
             self.answer[f'{symbol}'] = f'{number}'
-        self.output_print_normal()
+        if print:
+            self.output_print_normal()
 
     # Outputting solved data:
     def output_print_normal(self):
@@ -274,8 +283,34 @@ class Window:
         self.output_print_normal()
 
     def output_set_placeholder(self):
-        pass
+        equation_1_symbols = ('E', 'U', 'Ui')
+        equation_2_symbols = ('U', 'R', 'I')
+        equation_3_symbols = ('Ui', 'Ri', 'I')
+        self.symbols_new_group = []
 
+        equation_1_add = self.find_the_right_equation(equation_1_symbols)
+        equation_2_add = self.find_the_right_equation(equation_2_symbols)
+        equation_3_add = self.find_the_right_equation(equation_3_symbols)
+
+        self.unknown_symbols = self.symbols_new_group
+
+        self.solve_equations_linear(self.creating_equations(equation_1_add, equation_2_add, equation_3_add), False)
+        self.parse_data(0, True)
+        self.all_checks(self.creating_equations())
+
+    def find_the_right_equation(self, symbols):
+        symbols_in_equation = 0
+        symbols_not_in_equation = []
+        for symbol in symbols:
+            if symbol in self.answer.keys():
+                symbols_in_equation += 1
+            else:
+                symbols_not_in_equation.append(symbol)
+        if symbols_in_equation == 2:
+            self.symbols_new_group.append(symbols_not_in_equation[0])
+            return True
+        else:
+            return False
 
     def initiate(self):
         self.reset_output_labels_text()
