@@ -172,8 +172,7 @@ class Window:
                 self.output_print_empty()
 
             elif length >= 4:  # Not enough data check. STILL NEED TO DO
-                messagebox.showerror('Erro', 'Não foi possível realizar o cálculo devido a falta de informações.')
-                self.output_set_placeholder()
+                self.two_symbols_process_initiate()
 
             elif length == 3:  # Infinite check.
                 infinite_check = [
@@ -282,21 +281,24 @@ class Window:
             self.answer[f'{symbol}'] = "[0, infinito)"
         self.output_print_normal()
 
-    def output_set_placeholder(self):
+    def two_symbols_process_initiate(self):
         equation_1_symbols = ('E', 'U', 'Ui')
-        equation_2_symbols = ('U', 'R', 'I')
-        equation_3_symbols = ('Ui', 'Ri', 'I')
+        equation_2_symbols = ('Ui', 'Ri', 'I')
+        equation_3_symbols = ('U', 'R', 'I')
         self.symbols_new_group = []
 
         equation_1_add = self.find_the_right_equation(equation_1_symbols)
         equation_2_add = self.find_the_right_equation(equation_2_symbols)
         equation_3_add = self.find_the_right_equation(equation_3_symbols)
 
-        self.unknown_symbols = self.symbols_new_group
+        if not any([equation_1_add, equation_2_add, equation_3_add]):
+            messagebox.showerror('Erro', 'Não foi possível realizar o cálculo devido a falta de informações.')
+        else:
+            self.unknown_symbols = self.symbols_new_group
 
-        self.solve_equations_linear(self.creating_equations(equation_1_add, equation_2_add, equation_3_add), False)
-        self.parse_data(0, True)
-        self.all_checks(self.creating_equations())
+            self.solve_equations_linear(self.creating_equations(equation_1_add, equation_2_add, equation_3_add), False)
+            self.parse_data(0, True)
+            self.all_checks(self.creating_equations())
 
     def find_the_right_equation(self, symbols):
         symbols_in_equation = 0
