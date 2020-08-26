@@ -136,7 +136,7 @@ class Window:
             self.answer = {}  # Creating a dict to organize final data.
             for value, symbol in zip(values, symbols):  # Much easier to parse with loops.
                 if value:
-                    self.answer[symbol] = sp.S(value)
+                    self.answer[symbol] = sp.S(int(value))
                 else:
                     self.unknown_symbols.append(symbol)
 
