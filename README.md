@@ -15,6 +15,6 @@ A cor de fundo mudará de acordo com a resolução do problema, verde = Tudo cer
 ![image](https://cdn.discordapp.com/attachments/748281395448774676/748281796365385818/unknown.png)
 ![image](https://cdn.discordapp.com/attachments/748281395448774676/748282274725888101/unknown.png)
 
-Para utilzar a função de Calculo em massa basta editar o arquivo "Calcular em massa.csv", colocando as informações de acordo com as colunas.
+Para utilizar a função de Calculo em massa basta editar o arquivo "Calcular em massa.csv", colocando as informações de acordo com as colunas.
 
 ![image](https://cdn.discordapp.com/attachments/748281395448774676/748362376943894629/unknown.png)
