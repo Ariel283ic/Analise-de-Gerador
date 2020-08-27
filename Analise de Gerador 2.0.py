@@ -75,7 +75,10 @@ class Window:
 
         # Button to the function:
         self.calculate_button = tk.Button(self.frame, text="Calcular", bg="light gray", command=lambda: self.initiate())
-        self.calculate_button.place(relx=self.SLWid + self.VEWid, rely=0, relwidth=0.15, relheight=1)
+        self.calculate_button.place(relx=self.SLWid + self.VEWid, rely=0, relwidth=0.15, relheight=0.5)
+
+        self.bulk_calculate_button = tk.Button(self.frame, text="Calcular\nem massa", bg='light gray', command=lambda: self.bulk_initiate())
+        self.bulk_calculate_button.place(relx=self.SLWid + self.VEWid, rely=0.5, relwidth=0.15, relheight=0.5)
 
         # Label to answer:
         self.answer_label1 = tk.Label(self.frame, font=("Lucida Grande", 12), borderwidth=2, relief="sunken")
@@ -115,6 +118,15 @@ class Window:
             self.answer_label5['bg'] = self.answer_label6['bg'] = color
         self.answer_label1.update()
 
+    def check_if_string_or_numbers(self, inputs):
+        for input_number in inputs:
+            check = [input_number.isnumeric() or not input_number]
+        if all(check):
+            return inputs
+        else:
+            messagebox.showerror('ERRO', 'Você escreveu letras na caixa de entrada. USE NUMEROS!')
+            return False
+
     def input_numbers(self):
         e1 = self.value_entry1.get()
         u1 = self.value_entry2.get()
@@ -123,10 +135,7 @@ class Window:
         ri1 = self.value_entry5.get()
         i1 = self.value_entry6.get()
 
-        if not all([e1.isnumeric() or not e1, u1.isnumeric() or not u1, ui1.isnumeric() or not ui1, r1.isnumeric() or not r1, ri1.isnumeric() or not ri1, i1.isnumeric() or not i1]):
-            messagebox.showerror('ERRO', 'Você escreveu letras na caixa de entrada. USE NUMEROS!')
-            return False
-        return [e1, u1, ui1, r1, ri1, i1]
+        return self.check_if_string_or_numbers([e1, u1, ui1, r1, ri1, i1])
 
     def parse_data(self, values, second_run=False):
         symbols = ['E', 'U', 'Ui', 'R', 'Ri', 'I']
@@ -319,10 +328,37 @@ class Window:
 
     def initiate(self):
         self.reset_output_labels_text()
+        self.color_output_labels()
         values = self.input_numbers()
         if values:
             self.parse_data(values)
             self.all_checks(self.creating_equations())
+
+    def bulk_initiate(self):
+        import csv
+        self.all_answers = []
+        with open('Calcular em massa.csv', 'r') as csvfile:
+            readCSV = csv.DictReader(csvfile, delimiter=';')
+
+            for row in readCSV:
+                e1 = row['E']
+                u1 = row['U']
+                ui1 = row['Ui']
+                r1 = row['R']
+                ri1 = row['Ri']
+                i1 = row['I']
+                values = self.check_if_string_or_numbers([e1, u1, ui1, r1, ri1, i1])
+                if values:
+                    self.parse_data(values)
+                    self.all_checks(self.creating_equations())
+                    self.all_answers.append(self.answer)
+
+        with open('Calcular em massa.csv', 'w', newline='') as csvfile:
+            symbols = ['E', 'U', 'Ui', 'R', 'Ri', 'I']
+            writeCSV = csv.DictWriter(csvfile, fieldnames=symbols, delimiter=';')
+            writeCSV.writeheader()
+            for answer_set in self.all_answers:
+                writeCSV.writerow(answer_set)
 
 
 if __name__ == "__main__":
